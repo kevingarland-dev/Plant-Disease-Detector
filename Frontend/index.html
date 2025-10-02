@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant Disease Detector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+      background: #f5f5f5;
+    }
+    #preview {
+      width: 300px;
+      margin: 20px auto;
+      display: block;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 5px;
+      background: white;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌱 Plant Disease Detector</h1>
+
+  <input type="file" id="imageInput" accept="image/*"><br>
+  <img id="preview" src="" alt="Image preview"><br>
+  <button onclick="predict()">Predict Disease</button>
+
+  <div id="result"></div>
+
+  <script>
+    const API_URL = "http://localhost:8080/predict"; // FastAPI endpoint
+
+    // Show preview
+    document.getElementById("imageInput").onchange = function(event) {
+      let reader = new FileReader();
+      reader.onload = function(){
+        document.getElementById("preview").src = reader.result;
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Send image to FastAPI
+    async function predict() {
+      const file = document.getElementById("imageInput").files[0];
+      if (!file) return alert("Please select an image!");
+
+      let formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        let response = await fetch(API_URL, {
+          method: "POST",
+          body: formData,
+          mode: "cors"
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`HTTP ${response.status}: ${text}`);
+        }
+
+        let result = await response.json();
+
+        const confidencePct = (result.confidence * 100).toFixed(2);
+        let html = `✅ Prediction: ${result.class} (Confidence: ${confidencePct}%)`;
+
+        if (Array.isArray(result.top3)) {
+          html += "<br/><br/>Top-3:";
+          html += "<ol style=\"text-align:left;display:inline-block;\">";
+          result.top3.forEach(item => {
+            const pct = (item.confidence * 100).toFixed(2);
+            html += `<li>${item.class} (${pct}%)</li>`;
+          });
+          html += "</ol>";
+        }
+
+        if (typeof result.labels_mismatch !== "undefined" && result.labels_mismatch) {
+          html += `<br/><span style=\"color:#b00;\">Label mismatch: model outputs ${result.num_outputs} but UI has ${result.num_labels}</span>`;
+        }
+
+        document.getElementById("result").innerHTML = html;
+
+      } catch (err) {
+        console.error("Predict error:", err);
+        document.getElementById("result").innerText = "❌ Error: " + err.message +
+          "\nCheck that the API is running at " + API_URL +
+          " and that CORS is enabled.";
+      }
+    }
+  </script>
+</body>
+</html>
