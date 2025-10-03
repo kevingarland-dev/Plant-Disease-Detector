@@ -3,6 +3,5 @@ sqlalchemy
 uvicorn
 numpy
 pandas
-PIL
 tensorflow
 typing
