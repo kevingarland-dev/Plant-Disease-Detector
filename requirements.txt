@@ -6,3 +6,4 @@ pandas
 tensorflow
 typing
 pyodbc
+python-multipart
