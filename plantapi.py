@@ -12,15 +12,8 @@ from typing import List, Optional
 import logging
 import os
 
-server = "localhost\\SQLEXPRESS"   
-database = "PlantDiseasesDB"
 
-# If using Windows Authentication
-connection_string = (
-    "mssql+pyodbc://@"
-    + server + "/" + database +
-    "?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&Encrypt=no"
-)
+connection_string = ("postgresql://plantdb_ug30_user:eoRp81LDAYiK8CBCjpjEsSqwUQaA6Go9@dpg-d3kckcd6ubrc73ds5nlg-a.oregon-postgres.render.com/plantdb_ug30")
 
 engine = create_engine(connection_string)
 
