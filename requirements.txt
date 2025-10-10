@@ -7,3 +7,4 @@ tensorflow
 typing
 pyodbc
 python-multipart
+psycopg2
