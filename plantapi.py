@@ -1,4 +1,6 @@
-from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -13,6 +15,8 @@ import logging
 import os
 
 
+
+# If using Windows Authentication
 connection_string = ("postgresql://plantdb_ug30_user:eoRp81LDAYiK8CBCjpjEsSqwUQaA6Go9@dpg-d3kckcd6ubrc73ds5nlg-a.oregon-postgres.render.com/plantdb_ug30")
 
 engine = create_engine(connection_string)
@@ -22,6 +26,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
+templates = Jinja2Templates(directory="frontend")
 
 # Enable CORS with more restrictive settings for production
 app.add_middleware(
@@ -95,6 +100,13 @@ async def health_check():
         "model_status": model_status,
         "database": "connected"  # You could add actual DB health check here
     }
+
+@app.get("/predict", response_class=HTMLResponse)
+async def get_predict_page(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+    
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...), db: Session = Depends(get_db)):
