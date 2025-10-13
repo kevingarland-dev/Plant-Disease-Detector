@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, FileResponse
-from dotenv import load_dotenv
+
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -16,27 +16,13 @@ import os
 
 
 
-# If using Windows Authentication
-# Load environment variables
-load_dotenv()
+
 
 # --- Database setup ---
-DATABASE_URL = os.getenv("DATABASEpostgresql://plantdb_ug30_user:eoRp81LDAYiK8CBCjpjEsSqwUQaA6Go9@dpg-d3kckcd6ubrc73ds5nlg-a.oregon-postgres.render.com/plantdb_ug30_URL")
-
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL not set in environment variables")
-
-# Ensure SSL mode is enabled for Render
-if "render.com" in os.getenv("RENDER_EXTERNAL_HOSTNAME", "") or "sslmode" not in DATABASE_URL:
-    if "?" in DATABASE_URL:
-        DATABASE_URL += "&sslmode=require"
-    else:
-        DATABASE_URL += "?sslmode=require"
+DATABASE_URL = ("postgresql://plantdb_ug30_user:eoRp81LDAYiK8CBCjpjEsSqwUQaA6Go9@dpg-d3kckcd6ubrc73ds5nlg-a.oregon-postgres.render.com/plantdb_ug30")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(bind=engine)
-
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
