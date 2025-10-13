@@ -19,7 +19,7 @@ import os
 
 connection_string = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(connection_string)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
