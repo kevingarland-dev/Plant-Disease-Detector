@@ -17,12 +17,12 @@ import os
 
 
 
-
-# --- Database setup ---
-DATABASE_URL = ("postgresql://plantdb_ug30_user:eoRp81LDAYiK8CBCjpjEsSqwUQaA6Go9@dpg-d3kckcd6ubrc73ds5nlg-a.oregon-postgres.render.com/plantdb_ug30")
+connection_string = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
