@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, FileResponse
+
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -26,8 +26,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory = os.path.join(BASE_DIR, "frontend"))
+
 
 
 # Enable CORS with more restrictive settings for production
@@ -103,9 +102,11 @@ async def health_check():
         "database": "connected"  # You could add actual DB health check here
     }
 
-@app.get("/predict", response_class=HTMLResponse)
-async def get_predict_page(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+@app.get("/predict", response_class=FileResponse)
+async def serve_home():
+    # Automatically locate the HTML file
+    file_path = os.path.join(os.getcwd(), "index.html")
+    return FileResponse(file_path, media_type="text/html")
 
 
     
