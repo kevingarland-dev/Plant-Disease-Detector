@@ -26,6 +26,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory = os.path.join(BASE_DIR, "frontend"))
 
 
 # Enable CORS with more restrictive settings for production
@@ -102,21 +104,8 @@ async def health_check():
     }
 
 @app.get("/predict", response_class=HTMLResponse)
-async def get_predict_page():
-    return """
-    <html>
-        <head>
-            <title>Plant Disease Detector</title>
-        </head>
-        <body>
-            <h2>Upload a Leaf Image</h2>
-            <form action="/predict" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" accept="image/*" required />
-                <button type="submit">Predict</button>
-            </form>
-        </body>
-    </html>
-    """
+async def get_predict_page(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
     
