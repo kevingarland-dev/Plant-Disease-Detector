@@ -26,15 +26,31 @@ if not connection_string:
     # Optionally, raise an exception or exit if DB is critical
     # raise ValueError("DATABASE_URL is not set")
 
-# Initialize engine and sessionmaker, handling potential connection string issues
+# Initialize engine and sessionmaker with retry logic
 engine = None
 SessionLocal = None
-try:
-    engine = create_engine(connection_string)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    logger.info("SQLAlchemy engine and sessionmaker initialized.")
-except Exception as e:
-    logger.error(f"Failed to initialize SQLAlchemy engine or sessionmaker: {str(e)}")
+max_retries = 5
+retry_delay_seconds = 5
+
+for i in range(max_retries):
+    try:
+        logger.info(f"Attempting to connect to database (Attempt {i+1}/{max_retries})...")
+        engine = create_engine(connection_string)
+        # Test connection immediately
+        with engine.connect() as connection:
+            connection.execute("SELECT 1")
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        logger.info("SQLAlchemy engine and sessionmaker initialized and database connected successfully.")
+        break # Exit loop if connection is successful
+    except Exception as e:
+        logger.error(f"Failed to connect to database: {str(e)}")
+        if i < max_retries - 1:
+            logger.info(f"Retrying in {retry_delay_seconds} seconds...")
+            time.sleep(retry_delay_seconds)
+        else:
+            logger.error("Max retries reached. Database connection failed permanently.")
+            # Optionally, raise an exception or exit if DB is critical
+            # raise RuntimeError("Could not connect to database after multiple retries.")
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
