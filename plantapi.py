@@ -88,9 +88,11 @@ def read_file_as_image(data) -> np.ndarray:
     except Exception as e:
         raise ValueError(f"Error processing image: {str(e)}")
 
-@app.get("/")
+
+@app.get("/", response_class=FileResponse)
 async def root():
-    return {"message": "Plant Disease Classification API with Database"}
+    file_path = os.path.join(os.getcwd(), "home.html")
+    return FileResponse(file_path, media_type = "text/html")  
 
 @app.get("/health")
 async def health_check():
