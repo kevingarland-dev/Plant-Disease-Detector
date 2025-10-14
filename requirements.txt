@@ -7,7 +7,7 @@ tensorflow
 typing
 pyodbc
 python-multipart
-psycopg2
+psycopg2-binary
 jinja2
 dotenv
 asyncpg
