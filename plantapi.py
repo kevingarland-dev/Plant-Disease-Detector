@@ -13,16 +13,28 @@ import tensorflow as tf
 from typing import List, Optional
 import logging
 import os
+import time # Import time for connection retry logic
 
-
-
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 connection_string = os.getenv("DATABASE_URL")
 
-engine = create_engine(connection_string)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+if not connection_string:
+    logger.error("DATABASE_URL environment variable is not set. Database connection will fail.")
+    # Optionally, raise an exception or exit if DB is critical
+    # raise ValueError("DATABASE_URL is not set")
 
-
+# Initialize engine and sessionmaker, handling potential connection string issues
+engine = None
+SessionLocal = None
+try:
+    engine = create_engine(connection_string)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    logger.info("SQLAlchemy engine and sessionmaker initialized.")
+except Exception as e:
+    logger.error(f"Failed to initialize SQLAlchemy engine or sessionmaker: {str(e)}")
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
@@ -40,19 +52,18 @@ app.add_middleware(
 
 # Dependency to get database session
 def get_db():
+    if SessionLocal is None:
+        logger.error("SessionLocal is not initialized. Cannot provide database session.")
+        raise HTTPException(status_code=500, detail="Database service not available.")
     db = SessionLocal()
     try:
         yield db
     except Exception as e:
-        logger.error(f"Database error: {str(e)}")
+        logger.error(f"Database error in get_db: {str(e)}")
         db.rollback()
-        raise
+        raise HTTPException(status_code=500, detail=f"Database transaction failed: {str(e)}")
     finally:
         db.close()
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Load your existing model with error handling
 try:
@@ -96,13 +107,38 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint to verify API and model status."""
+    """Health check endpoint to verify API, model, and database status."""
     model_status = "loaded" if MODEL is not None else "failed"
-    return {
-        "status": "healthy" if MODEL is not None else "unhealthy",
+    
+    db_status = "disconnected"
+    db_error = None
+    if SessionLocal:
+        try:
+            db = SessionLocal()
+            # Attempt a simple query to check connection
+            db.execute("SELECT 1")
+            db_status = "connected"
+        except Exception as e:
+            db_status = "failed"
+            db_error = str(e)
+            logger.error(f"Database health check failed: {db_error}")
+        finally:
+            if db:
+                db.close()
+    else:
+        db_error = "SessionLocal not initialized"
+
+    overall_status = "healthy" if MODEL is not None and db_status == "connected" else "unhealthy"
+
+    response = {
+        "status": overall_status,
         "model_status": model_status,
-        "database": "connected"  # You could add actual DB health check here
+        "database_status": db_status,
     }
+    if db_error:
+        response["database_error"] = db_error
+    
+    return response
 
 @app.get("/predict", response_class=FileResponse)
 async def serve_home():
