@@ -2,13 +2,8 @@ fastapi
 sqlalchemy
 uvicorn
 numpy
-pandas
 tensorflow
-typing
-pyodbc
-python-multipart
-psycopg2-binary
-jinja2
 dotenv
-asyncpg
-psycopg
+logging
+
+

@@ -1,0 +1,306 @@
+
+    /* ====== GLOBAL STYLES ====== */
+    body {
+      margin: 0;
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at 50% 50%, #001220, #000814);
+      color: #f1f1f1;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* ====== CONTAINER ====== */
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 0 40px rgba(0, 255, 157, 0.2);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* ====== HEADER ====== */
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #00ff9d, #00b3ff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #cfd8dc;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+
+    /* ====== UPLOAD AREA ====== */
+    .file-input {
+      border: 2px dashed rgba(0, 255, 157, 0.5);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      transition: border 0.3s ease, background 0.3s ease;
+    }
+    .file-input:hover {
+      border-color: #00ff9d;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    input[type="file"] {
+      color: #00ff9d;
+      font-weight: 500;
+    }
+
+    /* ====== PREVIEW IMAGE ====== */
+    #preview {
+      max-width: 300px;
+      margin: 20px auto;
+      display: block;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    /* ====== BUTTON ====== */
+    button {
+  display: block;
+  margin: 20px auto; /* Centers horizontally */
+  padding: 14px 40px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #00ff9d, #00b3ff);
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(0, 255, 157, 0.4);
+}
+
+    /* ====== RESULTS ====== */
+    #result {
+      margin-top: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: inset 0 0 15px rgba(0,255,157,0.1);
+    }
+    .prediction-header {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #00ff9d;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .disease-header {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #00b3ff;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #00b3ff;
+      padding-bottom: 5px;
+    }
+    .detail-item {
+      margin: 10px 0;
+      background: rgba(255,255,255,0.07);
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .detail-label {
+      color: #00ff9d;
+      font-weight: 600;
+    }
+    .detail-value {
+      color: #e0e0e0;
+    }
+
+    /* ====== SYMPTOMS & REMEDIES ====== */
+    .symptoms-section, .remedies-section {
+      margin-top: 20px;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      color: #00b3ff;
+      font-weight: bold;
+      border-left: 4px solid #00ff9d;
+      padding-left: 10px;
+      margin-bottom: 10px;
+    }
+    .symptom-item, .remedy-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid #00b3ff;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .error {
+      background: rgba(255, 50, 50, 0.15);
+      border-left: 4px solid #ff4444;
+      padding: 20px;
+      border-radius: 10px;
+      color: #ffcccc;
+    }
+
+    .no-disease-info {
+      text-align: center;
+      color: #ffee58;
+      margin-top: 20px;
+      background: rgba(255, 255, 100, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+  /* Floating Mic Button */
+  #voiceAssistantBtn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00ff9d, #00b3ff);
+  color: white;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 25px rgba(0, 255, 157, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+#voiceAssistantBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 35px rgba(0, 255, 157, 0.6);
+}
+
+  /* Voice Assistant Popup */
+  .voice-popup {
+    position: fixed;
+    bottom: 110px;
+    right: 30px;
+    width: 300px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.4s ease;
+    z-index: 1001;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .voice-header {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+    padding: 10px 15px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .close-btn {
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  .voice-body {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .listening-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .listening-indicator .dot {
+    width: 10px;
+    height: 10px;
+    background: #34db42;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite ease-in-out;
+  }
+
+  .listening-indicator .dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .listening-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.2); }
+  }
+
+  .voice-footer {
+    text-align: center;
+    padding: 10px;
+    background: #f4f4f4;
+  }
+
+  .stop-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .spinner{
+    margin: 10px auto;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4CAF50;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 3s linear infinite;
+  }
+
+  @keyframes spin{
+    0%{transform: rotate(0deg);}
+    100%{transform: rotate(360deg);}
+  }
+
+  .stop-btn:hover {
+    background: #c0392b;
+  }
+
+

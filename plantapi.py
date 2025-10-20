@@ -1,35 +1,23 @@
-from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, FileResponse
-
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from database.models import Base, Disease, Symptom, Remedy
-import uvicorn
-import numpy as np 
-from io import BytesIO
-from PIL import Image
-import tensorflow as tf
-from typing import List, Optional
+import json
 import logging
 import os
+import numpy as np
+import tensorflow as tf
+from PIL import Image
+from io import BytesIO
+from fastapi.responses import FileResponse
+from fastapi import UploadFile, File, HTTPException 
+from fastapi.staticfiles import StaticFiles
 
-
-
-
-connection_string = os.getenv("DATABASE_URL")
-
-engine = create_engine(connection_string)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
-
-
-
-# Enable CORS with more restrictive settings for production
+app.mount("/static", StaticFiles(directory="static"), name="static")
+# Enable CORS (so frontend can connect easily)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins for development
@@ -38,23 +26,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dependency to get database session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    except Exception as e:
-        logger.error(f"Database error: {str(e)}")
-        db.rollback()
-        raise
-    finally:
-        db.close()
-
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load your existing model with error handling
+# Load disease data once at startup
+with open("plant_disease_dataset.json", "r") as f:
+    disease_data = json.load(f)
+    
 try:
     MODEL_PATH = "plant_disease_1.h5"
     if not os.path.exists(MODEL_PATH):
@@ -65,14 +43,14 @@ except Exception as e:
     logger.error(f"Failed to load model: {str(e)}")
     MODEL = None
 CLASS_NAMES = [
-    "Corn Cercospora leaf spot Gray leaf spot", 'Corn Common_rust_',
-    'Corn_(maize)___Northern_Leaf_Blight', 'Corn_(maize)___healthy',
-    'Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy',
-    'Tomato___Bacterial_spot', 'Tomato___Early_blight', 'Tomato___Late_blight',
-    'Tomato___Leaf_Mold', 'Tomato___Septoria_leaf_spot',
-    'Tomato___Spider_mites Two-spotted_spider_mite', 'Tomato___Target_Spot',
-    'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus',
-    'Tomato___healthy'
+    "Corn Cercospora leaf spot Gray leaf spot", 'Corn Common rust',
+    'Corn (maize) Northern Leaf Blight', 'Corn (maize) healthy',
+    'Potato Early blight', 'Potato Late_blight', 'Potato healthy',
+    'Tomato Bacterial spot', 'Tomato Early blight', 'Tomato Late blight',
+    'Tomato Leaf Mold', 'Tomato Septoria leaf spot',
+    'Tomato Spider mites Two-spotted spider mite', 'Tomato Target Spot',
+    'Tomato Yellow Leaf Curl Virus', 'Tomato mosaic virus',
+    'Tomato healthy'
 ]
 
 def read_file_as_image(data) -> np.ndarray:
@@ -89,20 +67,12 @@ def read_file_as_image(data) -> np.ndarray:
         raise ValueError(f"Error processing image: {str(e)}")
 
 
+
 @app.get("/", response_class=FileResponse)
 async def root():
     file_path = os.path.join(os.getcwd(), "home.html")
-    return FileResponse(file_path, media_type = "text/html")  
+    return FileResponse(file_path, media_type = "text/html") 
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint to verify API and model status."""
-    model_status = "loaded" if MODEL is not None else "failed"
-    return {
-        "status": "healthy" if MODEL is not None else "unhealthy",
-        "model_status": model_status,
-        "database": "connected"  # You could add actual DB health check here
-    }
 
 @app.get("/predict", response_class=FileResponse)
 async def serve_home():
@@ -111,10 +81,8 @@ async def serve_home():
     return FileResponse(file_path, media_type="text/html")
 
 
-    
-
 @app.post("/predict")
-async def predict(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def predict(file: UploadFile = File(...)):
     """Predict plant disease from uploaded image."""
     try:
         # Validate file type
@@ -153,33 +121,36 @@ async def predict(file: UploadFile = File(...), db: Session = Depends(get_db)):
         # Log some statistics about the predictions
         logger.info(f"Prediction stats: min={np.min(probabilities):.4f}, max={np.max(probabilities):.4f}, mean={np.mean(probabilities):.4f}")
         
-        # Get disease information from database with eager loading
-        from sqlalchemy.orm import joinedload
-        disease_info = db.query(Disease).options(
-            joinedload(Disease.symptoms),
-            joinedload(Disease.remedies)
-        ).filter(Disease.name == predicted_class).first()
-        
         response = {
             "class": predicted_class,
             "confidence": confidence,
             "index": predicted_index,
         }
         
-        # Add database information if disease exists
-        if disease_info:
-            response["disease_info"] = {
-                "id": disease_info.id,
-                "scientific_name": disease_info.scientific_name,
-                "plant_type": disease_info.plant_type,
-                "severity_level": disease_info.severity_level,
-                "description": disease_info.description,
-                "symptoms": [{"name": s.name, "description": s.description} for s in disease_info.symptoms],
-                "remedies": [{"name": r.name, "type": r.type, "description": r.description} for r in disease_info.remedies]
-            }
+        logger.info(f"Prediction response: {response}")
         
-        logger.info(f"Prediction completed: {predicted_class} with confidence {confidence:.4f}")
-        return response
+        
+        
+        
+        json_path = os.path.join(os.getcwd(), "plant_disease_dataset.json")
+        normalised_prediction = predicted_class.lower()
+        try:
+            with open(json_path, "r", encoding = "utf-8") as f:
+                plant_data = json.load(f)
+                
+                for entry in plant_data:
+                    if entry.get("Disease") and entry["Disease"].lower() == normalised_prediction:
+                        nlp_description = entry["response"]
+                        break
+        except Exception as e:
+            print("Error loading JSON data")
+            
+            return{
+            "class": predicted_class,
+            "confidence": confidence,
+            nlp_description: nlp_description
+            }
+
     
     except ValueError as e:
         logger.warning(f"Validation error: {str(e)}")
@@ -189,52 +160,24 @@ async def predict(file: UploadFile = File(...), db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Prediction error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-# New endpoints for database management
-@app.get("/diseases/", response_model=List[dict])
-async def get_diseases(db: Session = Depends(get_db)):
-    """Get list of all diseases."""
-    try:
-        diseases = db.query(Disease).all()
-        return [{"id": d.id, "name": d.name, "plant_type": d.plant_type, "severity_level": d.severity_level} for d in diseases]
-    except Exception as e:
-        logger.error(f"Error fetching diseases: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-@app.get("/diseases/{disease_id}")
-async def get_disease_details(disease_id: int, db: Session = Depends(get_db)):
-    """Get detailed information about a specific disease."""
-    try:
-        from sqlalchemy.orm import joinedload
-        disease = db.query(Disease).options(
-            joinedload(Disease.symptoms),
-            joinedload(Disease.remedies)
-        ).filter(Disease.id == disease_id).first()
         
-        if not disease:
-            raise HTTPException(status_code=404, detail="Disease not found")
-        
-        return {
-            "id": disease.id,
-            "name": disease.name,
-            "scientific_name": disease.scientific_name,
-            "plant_type": disease.plant_type,
-            "severity_level": disease.severity_level,
-            "description": disease.description,
-            "symptoms": [{"name": s.name, "description": s.description} for s in disease.symptoms],
-            "remedies": [{"name": r.name, "description": r.description, "type": r.type} for r in disease.remedies]
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-if __name__ == "__main__":
-    # Create database tables if they don't exist
-    try:
-        Base.metadata.create_all(bind=engine)
-        logger.info("Database tables created/verified successfully")
-    except Exception as e:
-        logger.error(f"Failed to create database tables: {str(e)}")
+    normalized_pred = predicted_class.lower().strip()
+
+    #Try to find matching disease info
+    for entry in disease_data:
+        if entry["Disease"].lower().strip() == normalized_pred:
+            return {
+                "disease": entry["Disease"],
+                "description": entry["response"]
+            }
+            
+
+    #If disease not found in the JSON
+    return {
+        "disease": predicted_class,
+        "description": "Sorry, I don't have detailed information for this disease yet."
+    }
     
-    uvicorn.run(app, host="localhost", port=8080, log_level="info")
+    
+

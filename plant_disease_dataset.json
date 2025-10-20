@@ -1,0 +1,410 @@
+[
+  {
+    "Disease": "Corn Cercospora leaf spot",
+    "response": "This disease affects corn and is known to cause long gray or brown spots on the leaves. It's a moderate condition caused by the fungus Cercospora zeae-maydis. When left alone, it can reduce the plant's strength and yield. Try rotating your crops and removing old plant debris after harvest to help control it."
+  },
+  {
+    "Disease": "Corn Common rust",
+    "response": "This corn disease is caused by Puccinia sorghi and appears as small, reddish-brown pustules on the leaves. It's moderate in severity. Farmers often notice leaves turning yellow over time. A good way to manage it is by using copper fungicide or planting resistant varieties of corn."
+  },
+  {
+    "Disease": "Corn (maize) Northern Leaf Blight",
+    "response": "This is a severe corn disease caused by Exserohilum turcicum. It creates large, cigar-shaped brown spots on leaves. If not managed early, it can drastically reduce harvest. To control it, use disease-free seeds, and if possible, apply a suitable fungicide when the disease starts to show."
+  },
+  {
+    "Disease": "Corn (maize) healthy",
+    "response": "Your corn plants are doing great! No disease detected here - leaves are green, stems are strong, and there's no sign of infection. Keep up with proper watering and pest control to maintain this healthy growth."
+  },
+  {
+    "Disease": "Potato Early blight",
+    "response": "Early blight in potatoes shows up as dark, round spots with yellow edges on leaves. It's usually moderate in severity. The fungus Alternaria solani causes it, and it often starts on older leaves. Remove infected leaves and rotate crops to help reduce its spread."
+  },
+  {
+    "Disease": "Potato Late blight",
+    "response": "This severe disease is caused by Phytophthora infestans, the same one that caused the historic potato famine. It makes leaves look water-soaked and brown, and can even rot the tubers underground. Try removing affected plants and using resistant potato varieties to prevent future outbreaks."
+  },
+  {
+    "Disease": "Potato healthy",
+    "response": "Your potato plants are looking strong and healthy. There are no signs of fungal or bacterial infection. Continue with good field hygiene and watering practices to keep them that way."
+  },
+  {
+    "Disease": "Tomato Early blight",
+    "response": "Early blight in tomatoes shows circular dark spots with concentric rings, often described as 'bull's-eye' marks. It's moderate, caused by Alternaria solani. Remove old infected leaves and rotate crops yearly to manage it well."
+  },
+  {
+    "Disease": "Tomato Late blight",
+    "response": "A severe disease caused by Phytophthora infestans. It starts as pale green spots that turn brown and spread rapidly, especially during cool, wet weather. The disease can destroy entire crops if not controlled. Remove infected plants immediately and use disease-free seeds."
+  },
+  {
+    "Disease": "Tomato Leaf Mold",
+    "response": "This moderate tomato disease is caused by Cladosporium fulvum. You'll notice yellow patches on top of leaves and a fuzzy mold underneath. It thrives in humid conditions. Improve air circulation and avoid overhead watering to reduce mold growth."
+  },
+  {
+    "Disease": "Tomato Septoria leaf spot",
+    "response": "A moderate disease that causes many small circular spots with dark borders on lower leaves. It's caused by Septoria lycopersici. Trim off affected leaves and keep the field free of weeds to help control the infection."
+  },
+  {
+    "Disease": "Tomato Spider Mites (Two-spotted Spider Mite)",
+    "response": "Spider mites love tomato plants, sucking the sap from leaves and leaving them yellow and dry. The severity is usually moderate, but can get worse in hot, dry weather. Regularly spray water on the plants and introduce natural predators like ladybugs to help manage them."
+  },
+  {
+    "Disease": "Tomato Target Spot",
+    "response": "This moderate tomato disease is caused by Corynespora cassiicola. It creates brown spots with light centers, sometimes mistaken for early blight. Use clean seeds, remove infected leaves, and spray appropriate fungicides to protect your crop."
+  },
+  {
+    "Disease": "Tomato Yellow Leaf Curl Virus",
+    "response": "A severe viral disease that turns tomato leaves upward and yellow. Plants stop growing and may not produce fruit. It's spread by whiteflies, so control these insects early and use resistant tomato varieties."
+  },
+  {
+    "Disease": "Tomato mosaic virus",
+    "response": "This viral infection makes tomato leaves curl, shrink, and show light-green patterns like a mosaic. It's moderate in severity and spreads by touch or tools. Always disinfect tools and wash hands after handling plants."
+  },
+  {
+    "Disease": "Tomato healthy",
+    "response": "Good news! Your tomato plants are completely healthy. The leaves look fresh, and there are no signs of pests or infection. Keep maintaining good spacing and watering habits."
+  },
+  {
+    "Disease": "Tomato Bacterial spot",
+    "response": "This disease affects tomatoes, causing dark, greasy-looking spots on both leaves and fruits. It's usually moderate in nature. It spreads quickly in wet, warm weather. Keep your field clean, use copper-based sprays, and avoid touching plants when they're wet."
+  },
+  {
+    "Disease": "Corn Cercospora leaf spot Gray leaf spot",
+    "response": "Corn Cercospora leaf spot Gray leaf spot, caused by Cercospora zeae-maydis, is a moderate disease. It manifests as elongated gray or brown lesions on corn leaves, potentially diminishing plant vigor and yield. Effective management includes crop rotation and clearing plant debris post-harvest."
+  },
+  {
+    "Disease": "Corn Common rust",
+    "response": "Common rust, a moderate corn disease, is identifiable by small, reddish-brown pustules on the leaves, caused by Puccinia sorghi. Affected leaves may gradually yellow. Control strategies involve applying copper fungicide or cultivating rust-resistant corn varieties."
+  },
+  {
+    "Disease": "Corn (maize) Northern Leaf Blight",
+    "response": "Northern Leaf Blight, a severe corn disease attributed to Exserohilum turcicum, produces large, cigar-shaped brown spots on foliage. Early intervention is crucial, as unmanaged blight can severely impact harvest yields. Management includes using disease-free seeds and timely fungicide application."
+  },
+  {
+    "Disease": "Corn (maize) healthy",
+    "response": "Your corn plants exhibit excellent health! No indications of disease are present; leaves are vibrant green, stems are robust, and no infections are apparent. Continue with consistent watering and effective pest control to sustain this healthy growth."
+  },
+  {
+    "Disease": "Potato Early blight",
+    "response": "Potato Early blight, a moderate condition caused by Alternaria solani, presents as dark, circular spots with yellow margins on leaves, typically starting on older foliage. Removing affected leaves and practicing crop rotation can help mitigate its spread."
+  },
+  {
+    "Disease": "Potato Late blight",
+    "response": "Late blight, a severe disease caused by Phytophthora infestans (infamous for the potato famine), causes leaves to become water-soaked and brown, and can lead to tuber rot. To prevent future outbreaks, remove infected plants and opt for resistant potato varieties."
+  },
+  {
+    "Disease": "Potato healthy",
+    "response": "Your potato plants appear vigorous and free from disease. There are no signs of fungal or bacterial infections. Maintain good field hygiene and consistent watering practices to ensure their continued health."
+  },
+  {
+    "Disease": "Tomato Early blight",
+    "response": "Tomato Early blight, a moderate disease caused by Alternaria solani, is characterized by circular dark spots with concentric rings, often resembling 'bull's-eye' patterns. Effective management involves removing old infected leaves and annual crop rotation."
+  },
+  {
+    "Disease": "Tomato Late blight",
+    "response": "Phytophthora infestans causes Tomato Late blight, a severe disease that begins as pale green spots, rapidly turning brown and spreading, especially in cool, wet conditions. This disease can devastate entire crops if not controlled. Immediate removal of infected plants and using disease-free seeds are crucial."
+  },
+  {
+    "Disease": "Tomato Leaf Mold",
+    "response": "Tomato Leaf Mold, a moderate disease caused by Cladosporium fulvum, manifests as yellow patches on the upper leaf surfaces and fuzzy mold underneath. It thrives in high humidity. Improving air circulation and avoiding overhead watering can help reduce mold growth."
+  },
+  {
+    "Disease": "Tomato Septoria leaf spot",
+    "response": "Septoria leaf spot is a moderate disease caused by Septoria lycopersici, resulting in numerous small circular spots with dark borders on lower tomato leaves. Trimming affected leaves and keeping the field weed-free are effective control measures."
+  },
+  {
+    "Disease": "Tomato Spider Mites (Two-spotted Spider Mite)",
+    "response": "Tomato plants are susceptible to spider mites (Tetranychus urticae), which feed on sap, causing leaves to yellow and dry. While typically moderate, severity can increase in hot, dry weather. Regular water sprays and introducing natural predators like ladybugs can help manage infestations."
+  },
+  {
+    "Disease": "Tomato Target Spot",
+    "response": "Target Spot, a moderate tomato disease caused by Corynespora cassiicola, produces brown spots with lighter centers, sometimes confused with early blight. Using clean seeds, removing infected leaves, and applying appropriate fungicides are recommended for crop protection."
+  },
+  {
+    "Disease": "Tomato Yellow Leaf Curl Virus",
+    "response": "Tomato Yellow Leaf Curl Virus (TYLCV) is a severe viral disease that causes tomato leaves to curl upwards and yellow, halting plant growth and fruit production. Whiteflies transmit this virus, so early insect control and planting resistant tomato varieties are essential."
+  },
+  {
+    "Disease": "Tomato mosaic virus",
+    "response": "Tomato mosaic virus (ToMV), a moderate viral infection, causes tomato leaves to curl, shrink, and display light-green mosaic patterns. It spreads through contact or contaminated tools. Always sanitize tools and wash hands after handling plants to prevent spread."
+  },
+  {
+    "Disease": "Tomato healthy",
+    "response": "Excellent news! Your tomato plants are in perfect health. The foliage appears vibrant, and there are no indications of pests or infections. Continue to maintain proper spacing and watering routines."
+  },
+  {
+    "Disease": "Tomato Bacterial spot",
+    "response": "Tomato Bacterial spot, typically moderate, is caused by Xanthomonas spp. and results in dark, greasy-looking lesions on both leaves and fruits. It proliferates rapidly in warm, wet conditions. Maintaining a clean field, using copper-based sprays, and avoiding plant contact when wet are key preventative measures."
+  },
+  {
+    "Disease": "Corn Cercospora leaf spot Gray leaf spot",
+    "response": "This disease affects corn and is known to cause long gray or brown spots on the leaves. It's a moderate condition caused by the fungus Cercospora zeae-maydis. When left alone, it can reduce the plant's strength and yield. Try rotating your crops and removing old plant debris after harvest to help control it."
+  },
+  {
+    "Disease": "Corn Common rust",
+    "response": "This corn disease is caused by Puccinia sorghi and appears as small, reddish-brown pustules on the leaves. It's moderate in severity. Farmers often notice leaves turning yellow over time. A good way to manage it is by using copper fungicide or planting resistant varieties of corn."
+  },
+  {
+    "Disease": "Corn (maize) Northern Leaf Blight",
+    "response": "This is a severe corn disease caused by Exserohilum turcicum. It creates large, cigar-shaped brown spots on leaves. If not managed early, it can drastically reduce harvest. To control it, use disease-free seeds, and if possible, apply a suitable fungicide when the disease starts to show."
+  },
+  {
+    "Disease": "Corn (maize) healthy",
+    "response": "Your corn plants are doing great! No disease detected here - leaves are green, stems are strong, and there's no sign of infection. Keep up with proper watering and pest control to maintain this healthy growth."
+  },
+  {
+    "Disease": "Potato Early blight",
+    "response": "Early blight in potatoes shows up as dark, round spots with yellow edges on leaves. It's usually moderate in severity. The fungus Alternaria solani causes it, and it often starts on older leaves. Remove infected leaves and rotate crops to help reduce its spread."
+  },
+  {
+    "Disease": "Potato Late blight",
+    "response": "This severe disease is caused by Phytophthora infestans, the same one that caused the historic potato famine. It makes leaves look water-soaked and brown, and can even rot the tubers underground. Try removing affected plants and using resistant potato varieties to prevent future outbreaks."
+  },
+  {
+    "Disease": "Potato healthy",
+    "response": "Your potato plants are looking strong and healthy. There are no signs of fungal or bacterial infection. Continue with good field hygiene and watering practices to keep them that way."
+  },
+  {
+    "Disease": "Tomato Early blight",
+    "response": "Early blight in tomatoes shows circular dark spots with concentric rings, often described as 'bull's-eye' marks. It's moderate, caused by Alternaria solani. Remove old infected leaves and rotate crops yearly to manage it well."
+  },
+  {
+    "Disease": "Tomato Late blight",
+    "response": "A severe disease caused by Phytophthora infestans. It starts as pale green spots that turn brown and spread rapidly, especially during cool, wet weather. The disease can destroy entire crops if not controlled. Remove infected plants immediately and use disease-free seeds."
+  },
+  {
+    "Disease": "Tomato Leaf Mold",
+    "response": "This moderate tomato disease is caused by Cladosporium fulvum. You'll notice yellow patches on top of leaves and a fuzzy mold underneath. It thrives in humid conditions. Improve air circulation and avoid overhead watering to reduce mold growth."
+  },
+  {
+    "Disease": "Tomato Septoria leaf spot",
+    "response": "A moderate disease that causes many small circular spots with dark borders on lower leaves. It's caused by Septoria lycopersici. Trim off affected leaves and keep the field free of weeds to help control the infection."
+  },
+  {
+    "Disease": "Tomato Spider Mites (Two-spotted Spider Mite)",
+    "response": "Spider mites love tomato plants, sucking the sap from leaves and leaving them yellow and dry. The severity is usually moderate, but can get worse in hot, dry weather. Regularly spray water on the plants and introduce natural predators like ladybugs to help manage them."
+  },
+  {
+    "Disease": "Tomato Target Spot",
+    "response": "This moderate tomato disease is caused by Corynespora cassiicola. It creates brown spots with light centers, sometimes mistaken for early blight. Use clean seeds, remove infected leaves, and spray appropriate fungicides to protect your crop."
+  },
+  {
+    "Disease": "Tomato Yellow Leaf Curl Virus",
+    "response": "A severe viral disease that turns tomato leaves upward and yellow. Plants stop growing and may not produce fruit. It's spread by whiteflies, so control these insects early and use resistant tomato varieties."
+  },
+  {
+    "Disease": "Tomato mosaic virus",
+    "response": "This viral infection makes tomato leaves curl, shrink, and show light-green patterns like a mosaic. It's moderate in severity and spreads by touch or tools. Always disinfect tools and wash hands after handling plants."
+  },
+  {
+    "Disease": "Tomato healthy",
+    "response": "Good news! Your tomato plants are completely healthy. The leaves look fresh, and there are no signs of pests or infection. Keep maintaining good spacing and watering habits."
+  },
+  {
+    "Disease": "Tomato Bacterial spot",
+    "response": "This disease affects tomatoes, causing dark, greasy-looking spots on both leaves and fruits. It's usually moderate in nature. It spreads quickly in wet, warm weather. Keep your field clean, use copper-based sprays, and avoid touching plants when they're wet."
+  },
+  {
+    "Disease": "Corn Cercospora leaf spot Gray leaf spot",
+    "response": "Corn Cercospora leaf spot Gray leaf spot, caused by Cercospora zeae-maydis, is a moderate disease. It manifests as elongated gray or brown lesions on corn leaves, potentially diminishing plant vigor and yield. Effective management includes crop rotation and clearing plant debris post-harvest."
+  },
+  {
+    "Disease": "Corn Common rust",
+    "response": "Common rust, a moderate corn disease, is identifiable by small, reddish-brown pustules on the leaves, caused by Puccinia sorghi. Affected leaves may gradually yellow. Control strategies involve applying copper fungicide or cultivating rust-resistant corn varieties."
+  },
+  {
+    "Disease": "Corn (maize) Northern Leaf Blight",
+    "response": "Northern Leaf Blight, a severe corn disease attributed to Exserohilum turcicum, produces large, cigar-shaped brown spots on foliage. Early intervention is crucial, as unmanaged blight can severely impact harvest yields. Management includes using disease-free seeds and timely fungicide application."
+  },
+  {
+    "Disease": "Corn (maize) healthy",
+    "response": "Your corn plants exhibit excellent health! No indications of disease are present; leaves are vibrant green, stems are robust, and no infections are apparent. Continue with consistent watering and effective pest control to sustain this healthy growth."
+  },
+  {
+    "Disease": "Potato Early blight",
+    "response": "Potato Early blight, a moderate condition caused by Alternaria solani, presents as dark, circular spots with yellow margins on leaves, typically starting on older foliage. Removing affected leaves and practicing crop rotation can help mitigate its spread."
+  },
+  {
+    "Disease": "Potato Late blight",
+    "response": "Late blight, a severe disease caused by Phytophthora infestans (infamous for the potato famine), causes leaves to become water-soaked and brown, and can lead to tuber rot. To prevent future outbreaks, remove infected plants and opt for resistant potato varieties."
+  },
+  {
+    "Disease": "Potato healthy",
+    "response": "Your potato plants appear vigorous and free from disease. There are no signs of fungal or bacterial infections. Maintain good field hygiene and consistent watering practices to ensure their continued health."
+  },
+  {
+    "Disease": "Tomato Early blight",
+    "response": "Tomato Early blight, a moderate disease caused by Alternaria solani, is characterized by circular dark spots with concentric rings, often resembling 'bull's-eye' patterns. Effective management involves removing old infected leaves and annual crop rotation."
+  },
+  {
+    "Disease": "Tomato Late blight",
+    "response": "Phytophthora infestans causes Tomato Late blight, a severe disease that begins as pale green spots, rapidly turning brown and spreading, especially in cool, wet conditions. This disease can devastate entire crops if not controlled. Immediate removal of infected plants and using disease-free seeds are crucial."
+  },
+  {
+    "Disease": "Tomato Leaf Mold",
+    "response": "Tomato Leaf Mold, a moderate disease caused by Cladosporium fulvum, manifests as yellow patches on the upper leaf surfaces and fuzzy mold underneath. It thrives in high humidity. Improving air circulation and avoiding overhead watering can help reduce mold growth."
+  },
+  {
+    "Disease": "Tomato Septoria leaf spot",
+    "response": "Septoria leaf spot is a moderate disease caused by Septoria lycopersici, resulting in numerous small circular spots with dark borders on lower tomato leaves. Trimming affected leaves and keeping the field weed-free are effective control measures."
+  },
+  {
+    "Disease": "Tomato Spider Mites (Two-spotted Spider Mite)",
+    "response": "Tomato plants are susceptible to spider mites (Tetranychus urticae), which feed on sap, causing leaves to yellow and dry. While typically moderate, severity can increase in hot, dry weather. Regular water sprays and introducing natural predators like ladybugs can help manage infestations."
+  },
+  {
+    "Disease": "Tomato Target Spot",
+    "response": "Target Spot, a moderate tomato disease caused by Corynespora cassiicola, produces brown spots with lighter centers, sometimes confused with early blight. Using clean seeds, removing infected leaves, and applying appropriate fungicides are recommended for crop protection."
+  },
+  {
+    "Disease": "Tomato Yellow Leaf Curl Virus",
+    "response": "Tomato Yellow Leaf Curl Virus (TYLCV) is a severe viral disease that causes tomato leaves to curl upwards and yellow, halting plant growth and fruit production. Whiteflies transmit this virus, so early insect control and planting resistant tomato varieties are essential."
+  },
+  {
+    "Disease": "Tomato mosaic virus",
+    "response": "Tomato mosaic virus (ToMV), a moderate viral infection, causes tomato leaves to curl, shrink, and display light-green mosaic patterns. It spreads through contact or contaminated tools. Always sanitize tools and wash hands after handling plants to prevent spread."
+  },
+  {
+    "Disease": "Tomato healthy",
+    "response": "Excellent news! Your tomato plants are in perfect health. The foliage appears vibrant, and there are no indications of pests or infections. Continue to maintain proper spacing and watering routines."
+  },
+  {
+    "Disease": "Tomato Bacterial spot",
+    "response": "Tomato Bacterial spot, typically moderate, is caused by Xanthomonas spp. and results in dark, greasy-looking lesions on both leaves and fruits. It proliferates rapidly in warm, wet conditions. Maintaining a clean field, using copper-based sprays, and avoiding plant contact when wet are key preventative measures."
+  },
+  {
+    "Disease": "Corn Cercospora leaf spot Gray leaf spot",
+    "response": "This fungal disease hits corn plants, showing up as gray or tan rectangular spots on the leaves. Caused by Cercospora zeae-maydis, it's moderately serious and can lower crop yields if ignored. Practice crop rotation and clear away crop residues to keep it in check."
+  },
+  {
+    "Disease": "Corn Common rust",
+    "response": "Corn common rust appears as raised, brick-red spots on both sides of the leaves, thanks to the fungus Puccinia sorghi. It's a medium-level issue that might cause leaves to wither. To handle it, try planting rust-resistant corn or using fungicides like those with copper."
+  },
+  {
+    "Disease": "Corn (maize) Northern Leaf Blight",
+    "response": "Northern leaf blight in corn creates long, elliptical gray-green lesions that turn brown. The culprit is the fungus Exserohilum turcicum, and it's quite severe, potentially slashing yields. Start with clean seeds and apply fungicides at the first signs to manage it."
+  },
+  {
+    "Disease": "Corn (maize) healthy",
+    "response": "Your maize plants are in top shape! No diseases in sight – the leaves are a healthy green, plants are sturdy, and everything looks vibrant. Stick to regular care like proper irrigation and monitoring for pests to stay this way."
+  },
+  {
+    "Disease": "Potato Early blight",
+    "response": "Potato early blight features brown spots with concentric rings on leaves, starting from the bottom. Alternaria solani is the fungus behind it, and it's moderately harmful. Clip off sick leaves and switch up your planting spots each year to curb it."
+  },
+  {
+    "Disease": "Potato Late blight",
+    "response": "Late blight turns potato leaves dark and soggy, spreading fast to stems and tubers. Phytophthora infestans causes this serious disease, which can wipe out fields. Pull out infected plants right away and choose blight-resistant potatoes for planting."
+  },
+  {
+    "Disease": "Potato healthy",
+    "response": "These potato plants are perfectly healthy. No spots, wilts, or other issues – just strong growth. Keep the soil well-drained and watch for any changes to maintain this health."
+  },
+  {
+    "Disease": "Tomato Early blight",
+    "response": "Tomato early blight shows as dark lesions with target-like rings on lower leaves. It's a moderate fungal issue from Alternaria solani. Prune affected parts and rotate your garden beds to prevent recurrence."
+  },
+  {
+    "Disease": "Tomato Late blight",
+    "response": "This fast-spreading disease makes tomato leaves blotchy and brown, often in damp weather. Caused by Phytophthora infestans, it's severe and can ruin harvests. Destroy infected material and plant resistant types to avoid it."
+  },
+  {
+    "Disease": "Tomato Leaf Mold",
+    "response": "Leaf mold on tomatoes causes pale yellow spots above and olive-green fuzz below leaves. Cladosporium fulvum thrives in moist greenhouses. Boost ventilation and water at the base to fight it off."
+  },
+  {
+    "Disease": "Tomato Septoria leaf spot",
+    "response": "Septoria leaf spot dots tomato leaves with tiny gray centers and dark edges, mostly below. The fungus Septoria lycopersici causes this moderate problem. Remove debris and infected leaves, and keep plants spaced out."
+  },
+  {
+    "Disease": "Tomato Spider Mites (Two-spotted Spider Mite)",
+    "response": "These tiny pests pierce tomato leaves, causing stippling and bronzing. Moderate in impact, spider mites worsen in dry heat. Hose plants down often and release beneficial insects to control them."
+  },
+  {
+    "Disease": "Tomato Target Spot",
+    "response": "Target spot features zoned brown spots on tomato leaves and fruit. Corynespora cassiicola is responsible for this moderate disease. Use healthy seeds, prune sick leaves, and apply fungicides as needed."
+  },
+  {
+    "Disease": "Tomato Yellow Leaf Curl Virus",
+    "response": "This virus stunts tomatoes, curling and yellowing leaves. Spread by whiteflies, it's severely damaging. Manage whiteflies with traps or insecticides and select virus-resistant varieties."
+  },
+  {
+    "Disease": "Tomato mosaic virus",
+    "response": "Mosaic virus mottles tomato leaves with green and yellow patches, distorting growth. It's a moderate virus spread by contact. Sanitize equipment and avoid smoking near plants to prevent it."
+  },
+  {
+    "Disease": "Tomato healthy",
+    "response": "Your tomatoes are thriving! No diseases or pests evident – leaves are lush and uniform. Continue with balanced fertilizer and consistent care."
+  },
+  {
+    "Disease": "Tomato Bacterial spot",
+    "response": "Bacterial spot creates scabby, raised spots on tomato leaves and fruits. Moderate severity, it loves humid conditions. Use bactericides, keep foliage dry, and rotate crops."
+  },
+  {
+    "Disease": "Corn Cercospora leaf spot Gray leaf spot",
+    "response": "Gray leaf spot on corn leaves long, narrow tan lesions that can merge. The fungus Cercospora zeae-maydis causes this moderate threat to yields. Tillage to bury residues and rotation help control it."
+  },
+  {
+    "Disease": "Corn Common rust",
+    "response": "This rust forms powdery orange pustules on corn foliage. Puccinia sorghi is the cause, with moderate effects. Fungicides and resistant hybrids are good defenses."
+  },
+  {
+    "Disease": "Corn (maize) Northern Leaf Blight",
+    "response": "Large tan spots with dark borders mark northern leaf blight in maize. Exserohilum turcicum leads to this serious yield reducer. Scout fields early and use protective sprays."
+  },
+  {
+    "Disease": "Corn (maize) healthy",
+    "response": "Maize looks fantastic – healthy, disease-free with vigorous growth. Maintain soil nutrients and monitor for any early signs."
+  },
+  {
+    "Disease": "Potato Early blight",
+    "response": "Early blight spots potatoes with bullseye-like marks on leaves. Alternaria solani, moderate harm. Mulch to reduce splash and remove lower leaves."
+  },
+  {
+    "Disease": "Potato Late blight",
+    "response": "Potatoes get dark lesions and white mold from late blight. Phytophthora infestans is deadly serious. Forecast weather and apply preventives."
+  },
+  {
+    "Disease": "Potato healthy",
+    "response": "Potatoes are in prime condition, no infections. Keep up the good work with crop care."
+  },
+  {
+    "Disease": "Tomato Early blight",
+    "response": "Concentric rings on tomato leaves signal early blight. Moderate fungal issue; stake plants for air flow."
+  },
+  {
+    "Disease": "Tomato Late blight",
+    "response": "Rapid wilting and browning from late blight in tomatoes. Severe; use organic fungicides and monitor humidity."
+  },
+  {
+    "Disease": "Tomato Leaf Mold",
+    "response": "Fuzzy growth under yellowing tomato leaves is leaf mold. Reduce moisture and improve spacing."
+  },
+  {
+    "Disease": "Tomato Septoria leaf spot",
+    "response": "Many small spots on tomatoes from septoria. Moderate; apply neem oil and clean up fallen leaves."
+  },
+  {
+    "Disease": "Tomato Spider Mites (Two-spotted Spider Mite)",
+    "response": "Webbing and speckled leaves from spider mites on tomatoes. Use insecticidal soap in hot weather."
+  },
+  {
+    "Disease": "Tomato Target Spot",
+    "response": "Zoned spots confuse with other blights in tomatoes. Fungicides and sanitation help."
+  },
+  {
+    "Disease": "Tomato Yellow Leaf Curl Virus",
+    "response": "Curling yellow leaves stop tomato fruiting. Control vectors and use screens."
+  },
+  {
+    "Disease": "Tomato mosaic virus",
+    "response": "Patchy colors on tomato leaves from mosaic virus. Avoid contaminated seeds."
+  },
+  {
+    "Disease": "Tomato healthy",
+    "response": "Tomatoes are disease-free and robust. Prune for better yields."
+  },
+  {
+    "Disease": "Tomato Bacterial spot",
+    "response": "Greasy spots on tomatoes from bacteria. Avoid overhead irrigation."
+  }
+]
