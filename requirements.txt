@@ -5,5 +5,5 @@ numpy
 tensorflow
 dotenv
 logging
-
+python-multipart
 
