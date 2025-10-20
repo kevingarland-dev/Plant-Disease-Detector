@@ -176,7 +176,7 @@ async def predict(file: UploadFile = File(...)):
     #If disease not found in the JSON
     return {
         "disease": predicted_class,
-        "description": "Sorry, I don't have detailed information for this disease yet."
+        "description": "Sorry, There's no detailed information for this disease yet."
     }
     
     
