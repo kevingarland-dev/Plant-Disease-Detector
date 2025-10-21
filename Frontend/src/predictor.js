@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./App.css"; // keep your existing CSS file
 
 const Predictor = () => {
-  const API_URL = "http://127.0.0.1:8000/predict"; // adjust if backend runs elsewhere
+  const API_URL = "https://plant-disease-detector-1-9brt.onrender.com/predict"; // adjust if backend runs elsewhere
 
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
