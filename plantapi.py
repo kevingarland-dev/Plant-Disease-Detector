@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="build/static"), name="static")
 # Enable CORS (so frontend can connect easily)
 app.add_middleware(
     CORSMiddleware,
@@ -68,6 +68,10 @@ def read_file_as_image(data) -> np.ndarray:
 
 
 
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    file_path = os.path.join("build", "index.html")
+    return FileResponse(file_path)
 @app.get("/", response_class=FileResponse)
 async def root():
     file_path = os.path.join(os.getcwd(), "home.html")

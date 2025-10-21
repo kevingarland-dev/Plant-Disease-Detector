@@ -6,4 +6,3 @@ tensorflow
 dotenv
 logging
 python-multipart
-
