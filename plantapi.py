@@ -67,7 +67,10 @@ def read_file_as_image(data) -> np.ndarray:
         raise ValueError(f"Error processing image: {str(e)}")
 
 
-
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    file_path = os.path.join("build", "index.html")
+    return FileResponse(file_path)
 
 @app.get("/", response_class=FileResponse)
 async def root():
@@ -112,20 +115,22 @@ async def predict(file: UploadFile = File(...)):
         confidence = float(np.max(probabilities))
         predicted_class = CLASS_NAMES[predicted_index] if predicted_index < len(CLASS_NAMES) else str(predicted_index)
         
-        # Log top 3 predictions for debugging
+        # Get top 3 predictions
         top3_indices = np.argsort(probabilities)[-3:][::-1]
-        logger.info(f"Top 3 predictions:")
-        for i, idx in enumerate(top3_indices):
+        top3_predictions = []
+        for idx in top3_indices:
             class_name = CLASS_NAMES[idx] if idx < len(CLASS_NAMES) else str(idx)
-            logger.info(f"  {i+1}. {class_name} (index {idx}): {probabilities[idx]:.4f}")
-        
-        # Log some statistics about the predictions
-        logger.info(f"Prediction stats: min={np.min(probabilities):.4f}, max={np.max(probabilities):.4f}, mean={np.mean(probabilities):.4f}")
+            confidence = float(probabilities[idx])
+            top3_predictions.append({
+                "disease": class_name,
+                "confidence": round(confidence * 100, 2)  # Convert to percentage
+            })
         
         response = {
             "class": predicted_class,
             "confidence": confidence,
             "index": predicted_index,
+            "predictions": top3_predictions  # Add top 3 predictions to response
         }
         
         logger.info(f"Prediction response: {response}")
@@ -165,20 +170,23 @@ async def predict(file: UploadFile = File(...)):
 
     normalized_pred = predicted_class.lower().strip()
 
-    #Try to find matching disease info
+    # Get disease info
+    description = "Sorry, There's no detailed information for this disease yet."
     for entry in disease_data:
         if entry["Disease"].lower().strip() == normalized_pred:
-            return {
-                "disease": entry["Disease"],
-                "description": entry["response"]
-            }
+            description = entry["response"]
+            break
             
-
-    #If disease not found in the JSON
-    return {
+    # Return combined response with both predictions and disease info
+    final_response = {
         "disease": predicted_class,
-        "description": "Sorry, There's no detailed information for this disease yet."
+        "description": description,
+        "confidence": confidence,
+        "predictions": top3_predictions  # Include the top 3 predictions
     }
+    
+    logger.info(f"Sending final response: {final_response}")
+    return final_response
     
     
 

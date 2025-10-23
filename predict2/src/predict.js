@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef} from "react";
 import "./predict.css";
 
 function PredictScreen() {
@@ -7,7 +7,7 @@ function PredictScreen() {
   const [result, setResult] = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [isListening, setIsListening] = useState(false);
-  const [voiceText, setVoiceText] = useState("");
+  const [setVoiceText] = useState("");
   const recognitionRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);

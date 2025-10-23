@@ -114,6 +114,23 @@ html, body {
   overflow-y: auto;
 }
 
+.prediction-header {
+  margin-bottom: 15px;
+}
+
+.prediction-header strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.1em;
+  color: #22c55e;
+}
+
+.confidence {
+  font-size: 1em;
+  color: #666;
+  margin-top: 5px;
+}
+
 .desc-title {
   font-weight: bold;
   margin-bottom: 12px;
