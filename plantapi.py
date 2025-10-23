@@ -68,10 +68,7 @@ def read_file_as_image(data) -> np.ndarray:
 
 
 
-@app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
-    file_path = os.path.join("build", "index.html")
-    return FileResponse(file_path)
+
 @app.get("/", response_class=FileResponse)
 async def root():
     file_path = os.path.join(os.getcwd(), "home.html")

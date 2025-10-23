@@ -1,15 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./home";
-import Predictor from "./predictor";
-import "./App.css";
+import HomeScreen from "./HomeScreen";
+import PredictScreen from "./predict";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/predict" element={<Predictor />} />
+        <Route path="/" element={<HomeScreen />} />
+        <Route path="/predict" element={<PredictScreen />} />
       </Routes>
     </Router>
   );
