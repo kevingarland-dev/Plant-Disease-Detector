@@ -165,15 +165,7 @@ function PredictScreen() {
         throw new Error(`HTTP ${response.status}: ${text}`);
       }
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (err) {
-        // If server returned an HTML error page or empty response, surface it for debugging
-        const text = await response.text();
-        console.error('Failed to parse JSON response', { status: response.status, text });
-        throw new Error(`Invalid JSON response (status ${response.status}): ${text || '<empty response>'}`);
-      }
+      const data = await response.json();
       setResult({
         disease: data.disease || "Unknown Disease",
         description: data.description || "No description available.",
