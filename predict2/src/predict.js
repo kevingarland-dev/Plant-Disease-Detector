@@ -15,7 +15,7 @@ function PredictScreen() {
   const rafRef = useRef(null);
   const [voiceLevel, setVoiceLevel] = useState(0);
 
-  const API_BASE_URL = "https://plant-disease-detector-2-rzau.onrender.com";
+  const API_BASE_URL = "https://plant-disease-detector-2-rzau.onrender.com/predict";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
