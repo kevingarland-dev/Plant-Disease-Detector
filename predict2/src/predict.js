@@ -15,7 +15,7 @@ function PredictScreen() {
   const rafRef = useRef(null);
   const [voiceLevel, setVoiceLevel] = useState(0);
 
-  const API_BASE_URL = "https://plant-disease-detector-2-rzau.onrender.com";
+  const API_BASE_URL = "http://127.0.0.1:8000";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
@@ -155,6 +155,9 @@ function PredictScreen() {
         method: "POST",
         body: formData,
         mode: "cors",
+        headers: {
+          'Accept': 'application/json',
+        }
       });
 
       if (!response.ok) {
@@ -167,6 +170,7 @@ function PredictScreen() {
         disease: data.disease || "Unknown Disease",
         description: data.description || "No description available.",
         confidence: data.confidence,
+        isUncertain: data.isUncertain === true
       });
       setPredictions(data.predictions || []);
     } catch (error) {
@@ -210,11 +214,16 @@ function PredictScreen() {
           {result ? (
             <>
               <div className="prediction-header">
-                <strong>✅ Detected Disease: {result.disease}</strong>
-                
+                {result.isUncertain ? (
+                  <strong style={{ color: '#9c6d1e' }}>⚠️ {result.disease}</strong>
+                ) : (
+                  <strong>✅ Detected Disease: {result.disease}</strong>
+                )}
               </div>
               <div className="symptoms-section">
-                <div className="symptom-item">{result.description}</div>
+                <div className="symptom-item" style={result.isUncertain ? { color: '#854d0e' } : undefined}>
+                  {result.description}
+                </div>
               </div>
             </>
           ) : (

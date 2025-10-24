@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
 app.mount("/static", StaticFiles(directory="build/static"), name="static")
+CONFIDENCE_THRESHOLD = 0.70
 # Enable CORS (so frontend can connect easily)
 app.add_middleware(
     CORSMiddleware,
@@ -78,11 +79,7 @@ async def root():
     return FileResponse(file_path, media_type = "text/html") 
 
 
-@app.get("/predict", response_class=FileResponse)
-async def serve_home():
-    # Automatically locate the HTML file
-    file_path = os.path.join(os.getcwd(), "index.html")
-    return FileResponse(file_path, media_type="text/html")
+# Removed conflicting GET /predict route
 
 
 @app.post("/predict")
@@ -112,50 +109,54 @@ async def predict(file: UploadFile = File(...)):
         predictions = MODEL.predict(img_batch)
         probabilities = predictions[0]
         predicted_index = int(np.argmax(probabilities))
-        confidence = float(np.max(probabilities))
+        raw_confidence = float(np.max(probabilities))
+        confidence = round(raw_confidence * 100, 2)  # Convert to percentage
         predicted_class = CLASS_NAMES[predicted_index] if predicted_index < len(CLASS_NAMES) else str(predicted_index)
+        
+        
         
         # Get top 3 predictions
         top3_indices = np.argsort(probabilities)[-3:][::-1]
         top3_predictions = []
         for idx in top3_indices:
             class_name = CLASS_NAMES[idx] if idx < len(CLASS_NAMES) else str(idx)
-            confidence = float(probabilities[idx])
+            pred_conf = float(probabilities[idx])
             top3_predictions.append({
                 "disease": class_name,
-                "confidence": round(confidence * 100, 2)  # Convert to percentage
+                "confidence": round(pred_conf * 100, 2)  # Convert to percentage
             })
-        
-        response = {
+            
+        threshold_pct = CONFIDENCE_THRESHOLD * 100  # Convert threshold to percentage
+        if confidence < threshold_pct:
+            response = {
+                "class": "Uncertain",
+                "confidence": confidence,
+                "predictions": top3_predictions,
+                "message": "PlantSense.ai is not able to make a confident prediction based on the provided image. This may be due to poor image quality or the disease not being represented in the training data."
+            }
+        else:
+            response = {
             "class": predicted_class,
             "confidence": confidence,
             "index": predicted_index,
             "predictions": top3_predictions  # Add top 3 predictions to response
         }
+            
+        
+        
         
         logger.info(f"Prediction response: {response}")
         
         
         
         
-        json_path = os.path.join(os.getcwd(), "plant_disease_dataset.json")
-        normalised_prediction = predicted_class.lower()
-        try:
-            with open(json_path, "r", encoding = "utf-8") as f:
-                plant_data = json.load(f)
-                
-                for entry in plant_data:
-                    if entry.get("Disease") and entry["Disease"].lower() == normalised_prediction:
-                        nlp_description = entry["response"]
-                        break
-        except Exception as e:
-            print("Error loading JSON data")
-            
-            return{
-            "class": predicted_class,
-            "confidence": confidence,
-            nlp_description: nlp_description
-            }
+        # Get disease info from the already loaded disease_data
+        normalized_pred = predicted_class.lower().strip()
+        description = "Sorry, There's no detailed information for this disease yet."
+        for entry in disease_data:
+            if entry["Disease"].lower().strip() == normalized_pred:
+                description = entry["response"]
+                break
 
     
     except ValueError as e:
@@ -168,22 +169,24 @@ async def predict(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
         
 
-    normalized_pred = predicted_class.lower().strip()
-
-    # Get disease info
-    description = "Sorry, There's no detailed information for this disease yet."
-    for entry in disease_data:
-        if entry["Disease"].lower().strip() == normalized_pred:
-            description = entry["response"]
-            break
-            
     # Return combined response with both predictions and disease info
-    final_response = {
-        "disease": predicted_class,
-        "description": description,
-        "confidence": confidence,
-        "predictions": top3_predictions  # Include the top 3 predictions
-    }
+    threshold_pct = CONFIDENCE_THRESHOLD * 100  # Convert threshold to percentage
+    if confidence < threshold_pct:
+        final_response = {
+            "disease": "Uncertain Prediction",
+            "description": "PlantSense.ai is not able to make a confident prediction based on the provided image. This may be due to poor image quality or the disease not being represented in the training data.",
+            "confidence": confidence,  # Already in percentage
+            "predictions": top3_predictions,
+            "isUncertain": True
+        }
+    else:
+        final_response = {
+            "disease": predicted_class,
+            "description": description,
+            "confidence": confidence,  # Already in percentage
+            "predictions": top3_predictions,
+            "isUncertain": False
+        }
     
     logger.info(f"Sending final response: {final_response}")
     return final_response
