@@ -203,6 +203,22 @@ html, body {
   }
 }
 
+.uncertainty-warning {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin: 0 auto 20px;
+  max-width: 800px;
+  text-align: center;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 footer {
   text-align: center;
   padding: 20px 0;

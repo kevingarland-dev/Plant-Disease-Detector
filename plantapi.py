@@ -129,7 +129,7 @@ async def predict(file: UploadFile = File(...)):
         threshold_pct = CONFIDENCE_THRESHOLD * 100  # Convert threshold to percentage
         if confidence < threshold_pct:
             response = {
-                "class": "Uncertain",
+                "class": predicted_class,  # Just use the predicted class as is
                 "confidence": confidence,
                 "predictions": top3_predictions,
                 "message": "PlantSense.ai is not able to make a confident prediction based on the provided image. This may be due to poor image quality or the disease not being represented in the training data."
@@ -173,8 +173,8 @@ async def predict(file: UploadFile = File(...)):
     threshold_pct = CONFIDENCE_THRESHOLD * 100  # Convert threshold to percentage
     if confidence < threshold_pct:
         final_response = {
-            "disease": "Uncertain Prediction",
-            "description": "PlantSense.ai is not able to make a confident prediction based on the provided image. This may be due to poor image quality or the disease not being represented in the training data.",
+            "disease": predicted_class,  # Use the actual predicted class name
+            "description": description,  # Include the description of the top prediction
             "confidence": confidence,  # Already in percentage
             "predictions": top3_predictions,
             "isUncertain": True

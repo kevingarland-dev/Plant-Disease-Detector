@@ -15,7 +15,7 @@ function PredictScreen() {
   const rafRef = useRef(null);
   const [voiceLevel, setVoiceLevel] = useState(0);
 
-  const API_BASE_URL = "https://plant-disease-detector-2-rzau.onrender.com";
+  const API_BASE_URL = "http://127.0.0.1:8000";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
@@ -215,13 +215,13 @@ function PredictScreen() {
             <>
               <div className="prediction-header">
                 {result.isUncertain ? (
-                  <strong style={{ color: '#9c6d1e' }}>⚠️ {result.disease}</strong>
+                  <strong style={{ color: '#9c6d1e' }}>Suspected Disease</strong>
                 ) : (
                   <strong>✅ Detected Disease: {result.disease}</strong>
                 )}
               </div>
               <div className="symptoms-section">
-                <div className="symptom-item" style={result.isUncertain ? { color: '#854d0e' } : undefined}>
+                <div className="symptom-item">
                   {result.description}
                 </div>
               </div>
@@ -284,6 +284,13 @@ function PredictScreen() {
         </div>
       </div>
       </div>
+
+      {/* Uncertainty Warning Message */}
+      {result && result.isUncertain && (
+        <div className="uncertainty-warning">
+          ⚠️ Note: PlantSense.AI is not fully confident in this prediction. This may be due to image quality or the disease not being represented in training data. Consider taking another photo or consulting an expert. You can also try using the voice model for more assistance.
+        </div>
+      )}
 
       <footer>
         © 2025 PlantSense.AI | Empowering Farmers with Artificial Intelligence
