@@ -1,21 +1,17 @@
 import React, { useState, useRef} from "react";
+import { useNavigate } from "react-router-dom";
+import VoiceAssistantModal from "./VoiceAssistantModal";
 import "./predict.css";
 
 function PredictScreen() {
+  const navigate = useNavigate();
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [predictions, setPredictions] = useState([]);
-  const [isListening, setIsListening] = useState(false);
-  const [setVoiceText] = useState("");
-  const recognitionRef = useRef(null);
-  const audioContextRef = useRef(null);
-  const analyserRef = useRef(null);
-  const mediaStreamRef = useRef(null);
-  const rafRef = useRef(null);
-  const [voiceLevel, setVoiceLevel] = useState(0);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
-  const API_BASE_URL = "https://plant-disease-detector-1-9brt.onrender.com";
+  const API_BASE_URL = "http://127.0.0.1:8000";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
@@ -23,115 +19,6 @@ function PredictScreen() {
       const reader = new FileReader();
       reader.onload = () => setPreview(reader.result);
       reader.readAsDataURL(file);
-    }
-  };
-
-  const toggleVoice = async () => {
-    if (!isListening) {
-      // start recognition + audio analyser
-      try {
-        // start SpeechRecognition
-        const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (Rec) {
-          const recognition = new Rec();
-          recognition.continuous = false;
-          recognition.interimResults = false;
-
-          recognition.onstart = () => setIsListening(true);
-          recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            setVoiceText(transcript);
-            processVoiceCommand(transcript);
-          };
-          recognition.onerror = (e) => {
-            console.error('Speech recognition error:', e.error || e);
-          };
-          recognition.onend = () => {
-            // allow a short delay so UI shows the end
-            stopVoice();
-          };
-
-          recognitionRef.current = recognition;
-          recognition.start();
-        } else {
-          console.warn('SpeechRecognition not supported');
-        }
-
-        // start microphone + analyser for visualizer
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaStreamRef.current = stream;
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        const audioCtx = new AudioCtx();
-        audioContextRef.current = audioCtx;
-        const source = audioCtx.createMediaStreamSource(stream);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        analyserRef.current = analyser;
-        source.connect(analyser);
-
-        const data = new Uint8Array(analyser.frequencyBinCount);
-
-        const update = () => {
-          analyser.getByteFrequencyData(data);
-          // compute a simple volume level
-          let sum = 0;
-          for (let i = 0; i < data.length; i++) sum += data[i];
-          const avg = sum / data.length / 255; // 0..1
-          setVoiceLevel(avg);
-          rafRef.current = requestAnimationFrame(update);
-        };
-
-        rafRef.current = requestAnimationFrame(update);
-      } catch (error) {
-        console.error('Voice start error', error);
-        alert('Unable to access microphone: ' + (error.message || error));
-      }
-    } else {
-      // stop everything
-      stopVoice();
-    }
-  };
-
-  const stopVoice = () => {
-    setIsListening(false);
-    setVoiceLevel(0);
-    // stop recognition
-    try {
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (e) {}
-        recognitionRef.current = null;
-      }
-    } catch (e) {}
-
-    // stop analyser and audio
-    try {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-      if (analyserRef.current) {
-        analyserRef.current.disconnect();
-        analyserRef.current = null;
-      }
-      if (audioContextRef.current) {
-        try { audioContextRef.current.close(); } catch (e) {}
-        audioContextRef.current = null;
-      }
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach((t) => t.stop());
-        mediaStreamRef.current = null;
-      }
-    } catch (e) {
-      console.error('Error stopping audio', e);
-    }
-  };
-
-  const processVoiceCommand = (command) => {
-    const lowerCommand = command.toLowerCase();
-    if (lowerCommand.includes('analyze') || lowerCommand.includes('analyse')) {
-      handlePredict();
-    } else if (lowerCommand.includes('upload') || lowerCommand.includes('add image')) {
-      document.getElementById('imageInput').click();
     }
   };
 
@@ -288,29 +175,44 @@ function PredictScreen() {
       {/* Uncertainty Warning Message */}
       {result && result.isUncertain && (
         <div className="uncertainty-warning">
-          ⚠️ Note: PlantSense.AI is not fully confident in this prediction. This may be due to image quality or the disease not being represented in training data. Consider taking another photo or consulting an expert. You can also try using the voice model for more assistance.
+          ⚠️ Note: PlantSense.AI is not fully confident in this prediction. This may be due to image quality or the disease not being represented in training data. Consider taking another photo or consulting an expert.
+          <button 
+            className="voice-assistant-link-btn"
+            onClick={() => setIsVoiceModalOpen(true)}
+            style={{
+              marginLeft: '10px',
+              padding: '8px 16px',
+              backgroundColor: '#22c55e',
+              color: 'white',
+              border: 'none',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              fontWeight: '600'
+            }}
+          >
+            🎤 Try Voice Assistant
+          </button>
         </div>
       )}
 
       <footer>
         © 2025 PlantSense.AI | Empowering Farmers with Artificial Intelligence
       </footer>
-      {/* floating microphone button */}
+      
+      {/* floating microphone button for voice assistant */}
       <button 
-        className={`voice-btn ${isListening ? 'listening' : ''}`} 
-        onClick={toggleVoice}
-        title="Click to use voice commands"
+        className="voice-btn" 
+        onClick={() => setIsVoiceModalOpen(true)}
+        title="Talk to PlantSense AI Assistant"
       >
         🎤
       </button>
 
-      {/* voice visual: small pulsing circle above the mic when listening */}
-      {isListening && (
-        <div className="voice-visual" aria-hidden>
-          <div className="voice-wave" style={{ transform: `scale(${0.6 + voiceLevel * 1.4})`, opacity: 0.6 + voiceLevel * 0.4 }} />
-          <div className="voice-core" style={{ transform: `scale(${0.8 + voiceLevel * 0.6})` }} />
-        </div>
-      )}
+      {/* Voice Assistant Modal */}
+      <VoiceAssistantModal 
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+      />
     </div>
   );
 }

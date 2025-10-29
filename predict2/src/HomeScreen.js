@@ -11,7 +11,12 @@ function HomeScreen() {
 
   return (
     <div className="home-container">
-      <h1>Welcome to PlantSense 🌱</h1>
+      <img 
+        src="./plantsense-logo.png" 
+        alt="PlantSense.AI Logo" 
+        className="home-logo"
+      />
+      <h1>Welcome to PlantSense.AI</h1>
       <p>Detect plant diseases instantly and get insights powered by AI.</p>
       <button onClick={handleNavigate}>Go to Disease Detection</button>
     </div>
