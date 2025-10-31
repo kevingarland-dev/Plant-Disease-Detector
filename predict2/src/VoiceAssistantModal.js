@@ -95,6 +95,7 @@ function VoiceAssistantModal({ isOpen, onClose }) {
 function VoiceAssistantUI({ onDisconnect }) {
   const { state } = useVoiceAssistant();
   const [isListening, setIsListening] = useState(false);
+<<<<<<< HEAD
   const [agentHasSpoken, setAgentHasSpoken] = useState(false);
 
   useEffect(() => {
@@ -108,12 +109,24 @@ function VoiceAssistantUI({ onDisconnect }) {
   // Show waiting state until agent speaks
   const isWaiting = !agentHasSpoken && state !== 'speaking';
   const isThinking = state === 'thinking';
+=======
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    setIsListening(state === 'listening');
+    // Only show "Connected" after we've moved past initializing
+    if (state && state !== 'initializing') {
+      setIsConnected(true);
+    }
+  }, [state]);
+>>>>>>> d5e10ed99cd298dc90ffe227d95cd39d24d02b9e
 
   return (
     <div className="voice-assistant-ui">
       <h2>PlantSense AI Voice Assistant</h2>
       
       <div className="voice-status-container">
+<<<<<<< HEAD
         <div className={`voice-indicator ${isWaiting ? 'waiting' : isThinking ? 'thinking' : isListening ? 'listening' : 'speaking'}`}>
           <div className="voice-pulse"></div>
           {isThinking && <div className="voice-pulse-secondary"></div>}
@@ -123,13 +136,28 @@ function VoiceAssistantUI({ onDisconnect }) {
           {isWaiting ? 'Waiting for agent...' :
            state === 'listening' ? 'Listening...' : 
            state === 'thinking' ? 'Processing your message...' : 
+=======
+        <div className={`voice-indicator ${isListening ? 'listening' : 'speaking'}`}>
+          <div className="voice-pulse"></div>
+          <div className="voice-icon">🎤</div>
+        </div>
+        <div className="voice-state-text">
+          {!isConnected ? 'Connecting...' :
+           state === 'listening' ? 'Listening...' : 
+           state === 'thinking' ? 'Thinking...' : 
+>>>>>>> d5e10ed99cd298dc90ffe227d95cd39d24d02b9e
            state === 'speaking' ? 'Speaking...' : 'Connected'}
         </div>
       </div>
       
       <div className="voice-instructions">
+<<<<<<< HEAD
         <p>{isWaiting ? 'Please wait while the AI agent initializes...' : 'Describe your plant\'s symptoms or ask about diseases'}</p>
         <p className="voice-tip">{isWaiting ? 'This usually takes just a few seconds' : 'The AI can help diagnose issues and provide treatment advice'}</p>
+=======
+        <p>Describe your plant's symptoms or ask about diseases</p>
+        <p className="voice-tip">The AI can help diagnose issues and provide treatment advice</p>
+>>>>>>> d5e10ed99cd298dc90ffe227d95cd39d24d02b9e
       </div>
 
       <button 
