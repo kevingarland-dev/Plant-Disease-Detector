@@ -10,6 +10,8 @@ from io import BytesIO
 from fastapi.responses import FileResponse
 from fastapi import UploadFile, File, HTTPException 
 from fastapi.staticfiles import StaticFiles
+from livekit import api
+import time
 
 
 
@@ -18,6 +20,12 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
 app.mount("/static", StaticFiles(directory="build/static"), name="static")
 CONFIDENCE_THRESHOLD = 0.70
+
+# LiveKit configuration
+LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", "APIEHYWL9z6g3SX")
+LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", "rZ4HmDX4ZnfnSRDKEfbmolRHnke6sAyU8rzxQaBqrDsB")
+LIVEKIT_URL = os.getenv("LIVEKIT_URL", "wss://final-llm-a8copwku.livekit.cloud")
+
 # Enable CORS (so frontend can connect easily)
 app.add_middleware(
     CORSMiddleware,
@@ -58,11 +66,10 @@ def read_file_as_image(data) -> np.ndarray:
     """Process uploaded image data and prepare it for model prediction."""
     try:
         image = Image.open(BytesIO(data)).convert("RGB")
-        # Try 256x256 which is common for plant disease models
+        
         image = image.resize((256, 256))
         image_array = np.array(image, dtype=np.float32)
-        # Some models expect values in [0, 255] range, others in [0, 1]
-        # Let's try without normalization first
+        
         return image_array
     except Exception as e:
         raise ValueError(f"Error processing image: {str(e)}")
@@ -80,6 +87,39 @@ async def root():
 
 
 # Removed conflicting GET /predict route
+
+
+@app.post("/voice-token")
+async def get_voice_token():
+    """Generate a LiveKit token for voice assistant connection."""
+    try:
+        # Generate a unique identity for this user session
+        identity = f"user_{int(time.time() * 1000)}"
+        room_name = f"plantsense_{identity}"
+        
+        # Create token with LiveKit API
+        token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
+        token.with_identity(identity).with_name(identity).with_grants(
+            api.VideoGrants(
+                room_join=True,
+                room=room_name,
+                can_publish=True,
+                can_subscribe=True,
+            )
+        )
+        
+        jwt_token = token.to_jwt()
+        
+        logger.info(f"Generated voice token for identity: {identity}, room: {room_name}")
+        
+        return {
+            "token": jwt_token,
+            "url": LIVEKIT_URL,
+            "room": room_name
+        }
+    except Exception as e:
+        logger.error(f"Error generating voice token: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate voice token: {str(e)}")
 
 
 @app.post("/predict")

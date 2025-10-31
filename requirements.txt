@@ -3,6 +3,7 @@ sqlalchemy
 uvicorn
 numpy
 tensorflow
-dotenv
-logging
+python-dotenv
 python-multipart
+livekit
+pillow
