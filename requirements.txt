@@ -5,5 +5,5 @@ numpy
 tensorflow
 python-dotenv
 python-multipart
-livekit
+livekit-api
 pillow
