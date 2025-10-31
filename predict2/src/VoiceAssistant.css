@@ -91,7 +91,6 @@
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-<<<<<<< HEAD
 .voice-indicator.waiting .voice-pulse {
   background: rgba(251, 191, 36, 0.3);
   animation: waiting-pulse 1.5s ease-in-out infinite;
@@ -111,8 +110,6 @@
   animation: pulse-secondary 0.8s ease-in-out infinite;
 }
 
-=======
->>>>>>> d5e10ed99cd298dc90ffe227d95cd39d24d02b9e
 @keyframes pulse {
   0%, 100% {
     transform: scale(1);
@@ -124,7 +121,6 @@
   }
 }
 
-<<<<<<< HEAD
 @keyframes pulse-secondary {
   0%, 100% {
     transform: scale(1.2);
@@ -147,8 +143,6 @@
   }
 }
 
-=======
->>>>>>> d5e10ed99cd298dc90ffe227d95cd39d24d02b9e
 .voice-icon {
   font-size: 48px;
   z-index: 1;

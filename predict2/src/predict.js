@@ -11,7 +11,8 @@ function PredictScreen() {
   const [predictions, setPredictions] = useState([]);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
-  const API_BASE_URL = "http://127.0.0.1:8000";
+  
+  const API_BASE_URL = window.location.origin;
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
