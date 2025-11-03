@@ -1,20 +1,35 @@
-# Use an official lightweight Python image
-FROM python:3.13
+# Use Python 3.10 slim image as base
+FROM python:3.10-slim
 
 # Set working directory
-WORKDIR /plantapi
+WORKDIR /app
 
-# Install system dependencies (for TensorFlow)
-RUN apt-get update && apt-get install -y libgl1-mesa-glx
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy backend
-COPY . .
+# Copy requirements first for better caching
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port for Hugging Face
+# Copy all necessary files
+COPY plantapi.py .
+COPY plant_disease_dataset.json .
+COPY plant_disease_1.h5 .
+
+# Copy static files and build directory if they exist
+COPY build/ ./build/
+COPY static/ ./static/
+
+# Expose port 7860 (Hugging Face Spaces default)
 EXPOSE 7860
 
-# Run FastAPI app
-CMD ["uvicorn", "plantapi:app", "--host", "0.0.0.0", "--port", "10000"]
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Run the FastAPI application with uvicorn
+CMD ["uvicorn", "plantapi:app", "--host", "0.0.0.0", "--port", "7860"]
