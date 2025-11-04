@@ -1,10 +1,10 @@
-import React, { useState, useRef} from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState} from "react";
+
 import VoiceAssistantModal from "./VoiceAssistantModal";
 import "./predict.css";
 
 function PredictScreen() {
-  const navigate = useNavigate();
+  
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -12,7 +12,7 @@ function PredictScreen() {
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   
-  const API_BASE_URL = window.location.origin;
+  const API_BASE_URL = "https://plantsense-ai.up.railway.app";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
