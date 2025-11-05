@@ -10,6 +10,10 @@ function PredictScreen() {
   const [result, setResult] = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [stream, setStream] = useState(null);
+  const videoRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
 
   
   const API_BASE_URL = "https://plantsense-api.up.railway.app";
@@ -23,13 +27,71 @@ function PredictScreen() {
     }
   };
 
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      setStream(mediaStream);
+      setShowCamera(true);
+      
+      // Wait for next tick to ensure video element is rendered
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+      }, 100);
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+      alert('Unable to access camera. Please check permissions or use Upload Photo instead.');
+    }
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const imageData = canvas.toDataURL('image/jpeg');
+      setPreview(imageData);
+      
+      stopCamera();
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setShowCamera(false);
+  };
+
+  // Cleanup camera on unmount
+  React.useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
   const handlePredict = async () => {
-    const fileInput = document.getElementById("imageInput");
-    const file = fileInput.files[0];
-    if (!file) {
-      alert("Please select an image first!");
+    if (!preview) {
+      alert("Please select or capture an image first!");
       return;
     }
+
+    // Convert base64 preview to blob
+    const response = await fetch(preview);
+    const blob = await response.blob();
+    const file = new File([blob], "plant-image.jpg", { type: "image/jpeg" });
 
     const formData = new FormData();
     formData.append("file", file);
@@ -90,6 +152,21 @@ function PredictScreen() {
           style={{ display: "none" }}
           onChange={handleImageSelect}
         />
+
+        <div className="image-options">
+          <button 
+            className="option-btn"
+            onClick={() => document.getElementById('imageInput').click()}
+          >
+            📁 Upload Photo
+          </button>
+          <button 
+            className="option-btn"
+            onClick={startCamera}
+          >
+            📷 Take Photo
+          </button>
+        </div>
 
         <button className="analyse-btn" onClick={handlePredict} disabled={loading}>
           {loading ? "Analysing..." : "Analyse Plant"}
@@ -191,7 +268,7 @@ function PredictScreen() {
               fontWeight: '600'
             }}
           >
-            🎤💬 Try AI Assistant
+            Ask PlantSense AI
           </button>
         </div>
       )}
@@ -208,6 +285,35 @@ function PredictScreen() {
       >
         🎤
       </button>
+
+      {/* Camera Modal */}
+      {showCamera && (
+        <div className="camera-modal-overlay" onClick={stopCamera}>
+          <div className="camera-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="camera-header">
+              <h3>📷 Capture Plant Photo</h3>
+              <button className="camera-close-btn" onClick={stopCamera}>✕</button>
+            </div>
+            <div className="camera-view">
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline
+                className="camera-video"
+              />
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
+            </div>
+            <div className="camera-controls">
+              <button className="camera-capture-btn" onClick={capturePhoto}>
+                📸 Capture
+              </button>
+              <button className="camera-cancel-btn" onClick={stopCamera}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hybrid Assistant Modal (Voice + Text) */}
       <HybridAssistantModal 
