@@ -78,6 +78,7 @@ async def run_agent_in_room(room_name: str, http_session: aiohttp.ClientSession)
             agent=Assistant(),
             room_input_options=RoomInputOptions(
                 noise_cancellation=noise_cancellation.BVC(),
+                text_enabled=True,  # Explicitly enable text input
             ),
         )
         

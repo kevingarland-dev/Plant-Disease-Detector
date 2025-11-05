@@ -1,6 +1,6 @@
 import React, { useState} from "react";
 
-import VoiceAssistantModal from "./VoiceAssistantModal";
+import HybridAssistantModal from "./HybridAssistantModal";
 import "./predict.css";
 
 function PredictScreen() {
@@ -12,7 +12,7 @@ function PredictScreen() {
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   
-  const API_BASE_URL = "https://plantsense-ai.up.railway.app";
+  const API_BASE_URL = "https://plantsense-api.up.railway.app";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
@@ -191,7 +191,7 @@ function PredictScreen() {
               fontWeight: '600'
             }}
           >
-            🎤 Try Voice Assistant
+            🎤💬 Try AI Assistant
           </button>
         </div>
       )}
@@ -204,13 +204,13 @@ function PredictScreen() {
       <button 
         className="voice-btn" 
         onClick={() => setIsVoiceModalOpen(true)}
-        title="Talk to PlantSense AI Assistant"
+        title="Talk or Chat with PlantSense AI Assistant"
       >
         🎤
       </button>
 
-      {/* Voice Assistant Modal */}
-      <VoiceAssistantModal 
+      {/* Hybrid Assistant Modal (Voice + Text) */}
+      <HybridAssistantModal 
         isOpen={isVoiceModalOpen}
         onClose={() => setIsVoiceModalOpen(false)}
       />

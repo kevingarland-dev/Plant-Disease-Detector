@@ -54,12 +54,13 @@ async def entrypoint(ctx: agents.JobContext):
         agent=Assistant(),
         room_input_options=RoomInputOptions(
             # For telephony applications, use `BVCTelephony` instead for best results
-            noise_cancellation=noise_cancellation.BVC(), 
+            noise_cancellation=noise_cancellation.BVC(),
+            text_enabled=True,  # Explicitly enable text input
         ),
     )
 
     await session.generate_reply(
-        instructions="Greet the user warmly as PlantSense.AI Voice Assistant. Let them know you can help diagnose plant diseases and provide treatment advice. Ask them to describe their plant issue or tell you what plant they're concerned about."
+        instructions="Greet the user warmly as PlantSense-AI Voice Assistant. Let them know you can help diagnose plant diseases and provide treatment advice. Ask them to describe their plant issue or tell you what plant they're concerned about."
     )
 
 

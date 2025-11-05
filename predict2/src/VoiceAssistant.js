@@ -9,7 +9,7 @@ function VoiceAssistantComponent() {
   const [error, setError] = useState(null);
 
   const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'wss://final-llm-a8copwku.livekit.cloud';
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://plant-disease-detector-ns1s.onrender.com';
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://plantsense-api.up.railway.app';
 
   const connectToVoiceAgent = async () => {
     setConnecting(true);

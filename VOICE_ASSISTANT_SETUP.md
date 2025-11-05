@@ -78,7 +78,7 @@ This will install:
 Create `predict2/.env` if you want to override defaults:
 ```
 REACT_APP_LIVEKIT_URL=wss://your-livekit-url.livekit.cloud
-REACT_APP_API_BASE_URL=http://localhost:8000
+REACT_APP_API_BASE_URL=https://plantsense-api.up.railway.app
 ```
 
 ### 3. Running the Application

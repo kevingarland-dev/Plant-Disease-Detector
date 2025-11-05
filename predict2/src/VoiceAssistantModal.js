@@ -9,7 +9,7 @@ function VoiceAssistantModal({ isOpen, onClose }) {
   const [error, setError] = useState(null);
 
   const LIVEKIT_URL = 'wss://final-llm-a8copwku.livekit.cloud';
-  const API_BASE_URL = 'https://plant-disease-detector-ns1s.onrender.com';
+  const API_BASE_URL = 'https://plantsense-api.up.railway.app';
 
   useEffect(() => {
     if (isOpen && !token) {
