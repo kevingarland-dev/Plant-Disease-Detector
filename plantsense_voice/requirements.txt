@@ -2,7 +2,6 @@
 livekit
 livekit-agents
 livekit-api
-livekit-blingfire
 livekit-plugins-noise-cancellation
 livekit-plugins-silero
 livekit-plugins-turn-detector
@@ -12,4 +11,5 @@ protobuf
 python-dotenv
 python-multipart
 silero
+
 
