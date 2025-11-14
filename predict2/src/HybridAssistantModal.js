@@ -10,7 +10,7 @@ function HybridAssistantModal({ isOpen, onClose }) {
   const [mode, setMode] = useState('voice'); // 'voice' or 'text'
 
   const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'wss://final-llm-a8copwku.livekit.cloud';
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://plantsense-api.up.railway.app';
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://plant-disease-detector-ax66.onrender.com';
 
   useEffect(() => {
     if (isOpen && !token) {

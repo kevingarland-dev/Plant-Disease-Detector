@@ -16,7 +16,7 @@ function PredictScreen() {
   const canvasRef = React.useRef(null);
 
   
-  const API_BASE_URL = "https://plantsense-api.up.railway.app";
+  const API_BASE_URL = "https://plant-disease-detector-ax66.onrender.com";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
