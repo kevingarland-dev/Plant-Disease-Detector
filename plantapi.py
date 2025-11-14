@@ -22,14 +22,14 @@ app.mount("/static", StaticFiles(directory="build/static"), name="static")
 CONFIDENCE_THRESHOLD = 0.70
 
 # LiveKit configuration
-LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", "APIEHYWL9z6g3SX")
-LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", "rZ4HmDX4ZnfnSRDKEfbmolRHnke6sAyU8rzxQaBqrDsB")
-LIVEKIT_URL = os.getenv("LIVEKIT_URL", "wss://final-llm-a8copwku.livekit.cloud")
+LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", )
+LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", )
+LIVEKIT_URL = os.getenv("LIVEKIT_URL", )
 
-# Enable CORS (so frontend can connect easily)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=["*"], 
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
@@ -38,7 +38,7 @@ app.add_middleware(
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load disease data once at startup
+# Load disease data
 with open("plant_disease_dataset.json", "r") as f:
     disease_data = json.load(f)
     
@@ -86,14 +86,14 @@ async def root():
     return FileResponse(file_path, media_type = "text/html") 
 
 
-# Removed conflicting GET /predict route
+
 
 
 @app.post("/voice-token")
 async def get_voice_token():
     """Generate a LiveKit token for voice assistant connection."""
     try:
-        # Generate a unique identity for this user session
+        # Generate a unique identity for current user session
         identity = f"user_{int(time.time() * 1000)}"
         room_name = f"plantsense_{identity}"
         
@@ -126,16 +126,16 @@ async def get_voice_token():
 async def predict(file: UploadFile = File(...)):
     """Predict plant disease from uploaded image."""
     try:
-        # Validate file type
+        #File type and size validation
         if not file.content_type or not file.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="File must be an image")
         
-        # Validate file size (max 10MB)
+        
         file_content = await file.read()
         if len(file_content) > 10 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="File size must be less than 10MB")
         
-        # Process image
+        
         image = read_file_as_image(file_content)
         img_batch = np.expand_dims(image, 0)
         
@@ -143,7 +143,7 @@ async def predict(file: UploadFile = File(...)):
         if MODEL is None:
             raise HTTPException(status_code=503, detail="Model not available")
         
-        # Make prediction
+        # Prediction Logic
         logger.info(f"Making prediction for file: {file.filename}")
         logger.info(f"Image shape after preprocessing: {img_batch.shape}")
         predictions = MODEL.predict(img_batch)
@@ -190,7 +190,7 @@ async def predict(file: UploadFile = File(...)):
         
         
         
-        # Get disease info from the already loaded disease_data
+        # Get disease info from .json file
         normalized_pred = predicted_class.lower().strip()
         description = "Sorry, There's no detailed information for this disease yet."
         for entry in disease_data:
@@ -209,7 +209,7 @@ async def predict(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
         
 
-    # Return combined response with both predictions and disease info
+    # Threshold Logic for uncertain predictions
     threshold_pct = CONFIDENCE_THRESHOLD * 100  # Convert threshold to percentage
     if confidence < threshold_pct:
         final_response = {
