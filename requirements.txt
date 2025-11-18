@@ -1,5 +1,5 @@
 fastapi
-sqlalchemy
+
 uvicorn
 numpy
 tensorflow

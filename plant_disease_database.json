@@ -406,5 +406,93 @@
   {
     "Disease": "Tomato Bacterial spot",
     "response": "Greasy spots on tomatoes from bacteria. Avoid overhead irrigation."
+  },
+  {
+    "Disease": "Apple Apple scab",
+    "response": "Apple scab is a fungal disease caused by Venturia inaequalis that creates dark, scabby lesions on apple leaves and fruit. It's moderate in severity and thrives in wet conditions. Remove infected leaves, improve air circulation, and apply fungicides during the growing season to manage it effectively."
+  },
+  {
+    "Disease": "Apple Black rot",
+    "response": "Black rot, caused by Botryosphaeria obtusa, produces dark, sunken lesions on apple fruit and cankers on branches. It's a serious disease that can lead to fruit loss. Prune infected branches, remove mummified fruit, and apply fungicides to prevent spread."
+  },
+  {
+    "Disease": "Apple Cedar apple rust",
+    "response": "Cedar apple rust is caused by Gymnosporangium juniperi-virginianae and creates orange, gelatinous spore horns on cedar trees and yellow spots with red halos on apple leaves. It's moderate in severity. Remove infected leaves and cedar trees nearby if possible, and apply fungicides during spring."
+  },
+  {
+    "Disease": "Apple healthy",
+    "response": "Your apple trees are in excellent health! The leaves are vibrant green, fruit appears unblemished, and there are no signs of disease or pest damage. Continue with regular pruning and monitoring to maintain this healthy condition."
+  },
+  {
+    "Disease": "Blueberry healthy",
+    "response": "Your blueberry plants are thriving! No diseases or pest infestations are evident. The foliage is lush and green, and the plants show vigorous growth. Keep maintaining proper watering and mulching practices."
+  },
+  {
+    "Disease": "Cherry (including sour) Powdery mildew",
+    "response": "Powdery mildew on cherry trees appears as a white, powdery coating on leaves and fruit. It's caused by Podosphaera clandestina and is moderate in severity. Improve air circulation, avoid overhead watering, and apply sulfur-based fungicides to control it."
+  },
+  {
+    "Disease": "Cherry (including sour) healthy",
+    "response": "Your cherry trees are healthy and disease-free! The leaves are green and vigorous, with no signs of infection or pest damage. Continue with proper care including adequate watering and pest monitoring."
+  },
+  {
+    "Disease": "Grape Black rot",
+    "response": "Black rot, caused by Guignardia bidwellii, creates brown, shriveled berries and dark lesions on grape leaves. It's a serious disease that can destroy entire crops. Remove infected fruit and leaves, improve air circulation, and apply fungicides regularly during the growing season."
+  },
+  {
+    "Disease": "Grape Esca (Black Measles)",
+    "response": "Esca, also known as black measles, is a fungal disease that causes dark spots on grape leaves and fruit, with internal wood decay. It's severe and difficult to manage. Prune out infected wood, sterilize tools, and apply wound dressing to cut surfaces to prevent infection."
+  },
+  {
+    "Disease": "Grape Leaf blight (Isariopsis Leaf Spot)",
+    "response": "Leaf blight on grapes, caused by Isariopsis clavispora, creates small brown spots on leaves that expand and cause defoliation. It's moderate in severity. Remove infected leaves, improve drainage and air circulation, and apply fungicides when symptoms appear."
+  },
+  {
+    "Disease": "Grape healthy",
+    "response": "Your grape vines are in perfect health! The foliage is lush and green, fruit clusters are developing well, and there are no signs of disease or pest damage. Maintain regular pruning and monitoring practices."
+  },
+  {
+    "Disease": "Orange Haunglongbing (Citrus greening)",
+    "response": "Huanglongbing (citrus greening), caused by Candidatus Liberibacter, is a severe bacterial disease spread by psyllid insects. It causes yellowing of leaves and bitter, misshapen fruit. There is no cure; infected trees must be removed. Control psyllids with insecticides and maintain strict quarantine measures."
+  },
+  {
+    "Disease": "Peach Bacterial spot",
+    "response": "Bacterial spot on peaches, caused by Xanthomonas species, creates small dark lesions on leaves, fruit, and twigs. It's moderate in severity and spreads in wet conditions. Remove infected branches, improve air circulation, and apply copper-based bactericides."
+  },
+  {
+    "Disease": "Peach healthy",
+    "response": "Your peach trees are thriving and disease-free! The leaves are vibrant, fruit is developing well, and there are no signs of infection or pest damage. Continue with regular watering and monitoring."
+  },
+  {
+    "Disease": "Pepper, bell Bacterial spot",
+    "response": "Bacterial spot on bell peppers, caused by Xanthomonas species, produces small dark, greasy spots on leaves and fruit. It's moderate in severity and spreads rapidly in warm, wet conditions. Use disease-free seeds, avoid overhead watering, and apply copper fungicides."
+  },
+  {
+    "Disease": "Pepper, bell healthy",
+    "response": "Your bell pepper plants are in excellent health! The foliage is lush and green, fruit is developing well, and there are no signs of disease or pest infestation. Maintain consistent watering and proper spacing."
+  },
+  {
+    "Disease": "Raspberry healthy",
+    "response": "Your raspberry plants are healthy and vigorous! The canes are strong, leaves are green, and there are no signs of disease or pest damage. Continue with regular pruning and monitoring for optimal growth."
+  },
+  {
+    "Disease": "Soybean healthy",
+    "response": "Your soybean plants are in excellent condition! The foliage is lush and green, plants are growing vigorously, and there are no signs of disease or pest damage. Maintain proper watering and continue monitoring for any changes."
+  },
+  {
+    "Disease": "Squash Powdery mildew",
+    "response": "Powdery mildew on squash appears as a white, powdery coating on leaves, stems, and fruit. It's caused by Podosphaera xanthii and is moderate in severity. Improve air circulation, avoid overhead watering, and apply sulfur-based fungicides or neem oil."
+  },
+  {
+    "Disease": "Strawberry Leaf scorch",
+    "response": "Leaf scorch on strawberries, caused by Diplocarpon earliana, creates red to purple spots on leaves that eventually turn brown. It's moderate in severity and spreads in wet conditions. Remove infected leaves, improve air circulation, and apply fungicides as needed."
+  },
+  {
+    "Disease": "Strawberry healthy",
+    "response": "Your strawberry plants are thriving! The leaves are green and healthy, fruit is developing well, and there are no signs of disease or pest damage. Continue with proper watering and mulching practices."
+  },
+  {
+    "Disease": "Unknown",
+    "response": "The model was unable to classify this image with confidence. This may be due to poor image quality, unusual lighting, or a disease not represented in the training data. Please try uploading a clearer image or consult with a plant pathologist for accurate diagnosis."
   }
 ]
