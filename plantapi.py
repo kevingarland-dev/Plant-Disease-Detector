@@ -39,7 +39,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load disease data
-with open("plant_disease_dataset.json", "r") as f:
+with open("plant_disease_database.json", "r") as f:
     disease_data = json.load(f)
     
 try:
