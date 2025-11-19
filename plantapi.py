@@ -94,8 +94,13 @@ async def get_voice_token(request: Request):
     """Generate a LiveKit token for voice assistant connection."""
     try:
         # Extract prediction data from request body if provided
-        body = await request.json()
-        prediction_data = body.get("predictionData", None)
+        prediction_data = None
+        try:
+            body = await request.json()
+            prediction_data = body.get("predictionData", None)
+        except:
+            # Request body might be empty, which is fine
+            pass
         
         # Generate a unique identity for current user session
         identity = f"user_{int(time.time() * 1000)}"
