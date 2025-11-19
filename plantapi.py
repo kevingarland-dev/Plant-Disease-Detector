@@ -98,6 +98,9 @@ def read_file_as_image(data) -> np.ndarray:
         image = image.resize((256, 256))
         image_array = np.array(image, dtype=np.float32)
         
+        # Normalize pixel values to 0-1 range
+        image_array = image_array / 255.0
+        
         return image_array
     except Exception as e:
         raise ValueError(f"Error processing image: {str(e)}")
@@ -186,12 +189,15 @@ async def predict(file: UploadFile = File(...)):
         # Prediction Logic
         logger.info(f"Making prediction for file: {file.filename}")
         logger.info(f"Image shape after preprocessing: {img_batch.shape}")
+        logger.info(f"Number of classes in CLASS_NAMES: {len(CLASS_NAMES)}")
         predictions = MODEL.predict(img_batch)
         probabilities = predictions[0]
+        logger.info(f"Number of classes in model output: {len(probabilities)}")
         predicted_index = int(np.argmax(probabilities))
         raw_confidence = float(np.max(probabilities))
         confidence = round(raw_confidence * 100, 2)  # Convert to percentage
         predicted_class = CLASS_NAMES[predicted_index] if predicted_index < len(CLASS_NAMES) else str(predicted_index)
+        logger.info(f"Predicted index: {predicted_index}, Predicted class: {predicted_class}, Confidence: {confidence}%")
         
         
         
