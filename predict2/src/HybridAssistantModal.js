@@ -3,14 +3,14 @@ import { LiveKitRoom, RoomAudioRenderer, useVoiceAssistant, useRoomContext, useD
 import '@livekit/components-styles';
 import './HybridAssistantModal.css';
 
-function HybridAssistantModal({ isOpen, onClose }) {
+function HybridAssistantModal({ isOpen, onClose, predictionData }) {
   const [token, setToken] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
   const [mode, setMode] = useState('voice'); // 'voice' or 'text'
 
-  const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'wss://final-llm-a8copwku.livekit.cloud';
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://plant-disease-detector-ax66.onrender.com';
+  const LIVEKIT_URL = "wss://final-llm-a8copwku.livekit.cloud" ;
+  const API_BASE_URL ="https://plant-disease-detector-ax66.onrender.com";
 
   useEffect(() => {
     if (isOpen && !token) {
@@ -28,6 +28,9 @@ function HybridAssistantModal({ isOpen, onClose }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          predictionData: predictionData
+        }),
       });
 
       if (!response.ok) {
@@ -85,6 +88,7 @@ function HybridAssistantModal({ isOpen, onClose }) {
               initialMode={mode} 
               onDisconnect={handleClose}
               onModeChange={setMode}
+              predictionData={predictionData}
             />
             {mode === 'voice' && <RoomAudioRenderer />}
           </LiveKitRoom>
@@ -94,11 +98,12 @@ function HybridAssistantModal({ isOpen, onClose }) {
   );
 }
 
-function HybridUI({ initialMode, onDisconnect, onModeChange }) {
+function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
   const [mode, setMode] = useState(initialMode);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [predictionSent, setPredictionSent] = useState(false);
   const messagesEndRef = useRef(null);
   const room = useRoomContext();
   const { state } = useVoiceAssistant();
@@ -211,6 +216,21 @@ function HybridUI({ initialMode, onDisconnect, onModeChange }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Send prediction data to agent when room connects
+  useEffect(() => {
+    if (room && predictionData && !predictionSent) {
+      const predictionMessage = `The user just analyzed a plant image. Here's the diagnosis: Disease: ${predictionData.disease}, Confidence: ${predictionData.confidence}%, Description: ${predictionData.description}. Please acknowledge this information and be ready to provide more detailed advice about this disease.`;
+      
+      try {
+        room.localParticipant.sendText(predictionMessage, { topic: 'lk.chat' });
+        setPredictionSent(true);
+        console.log('✅ Prediction data sent to agent');
+      } catch (err) {
+        console.error('Error sending prediction data:', err);
+      }
+    }
+  }, [room, predictionData, predictionSent]);
 
   // Add welcome message when connected in text mode
   useEffect(() => {

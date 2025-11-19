@@ -16,7 +16,8 @@ function PredictScreen() {
   const canvasRef = React.useRef(null);
 
   
-  const API_BASE_URL = "https://plant-disease-detector-ax66.onrender.com";
+
+  const API_BASE_URL ="https://plant-disease-detector-ax66.onrender.com";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
@@ -326,6 +327,7 @@ function PredictScreen() {
       <HybridAssistantModal 
         isOpen={isVoiceModalOpen}
         onClose={() => setIsVoiceModalOpen(false)}
+        predictionData={result}
       />
     </div>
   );

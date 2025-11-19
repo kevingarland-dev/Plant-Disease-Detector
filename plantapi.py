@@ -8,7 +8,7 @@ import tensorflow as tf
 from PIL import Image
 from io import BytesIO
 from fastapi.responses import FileResponse
-from fastapi import UploadFile, File, HTTPException 
+from fastapi import UploadFile, File, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from livekit import api
 import time
@@ -43,7 +43,7 @@ with open("plant_disease_database.json", "r") as f:
     disease_data = json.load(f)
     
 try:
-    MODEL_PATH = "final_model.h5"
+    MODEL_PATH = "plant_disease_1.h5"
     if not os.path.exists(MODEL_PATH):
         raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
     MODEL = tf.keras.models.load_model(MODEL_PATH)
@@ -51,45 +51,16 @@ try:
 except Exception as e:
     logger.error(f"Failed to load model: {str(e)}")
     MODEL = None
-CLASS_NAMES = ['Apple___Apple_scab', 
-'Apple___Black_rot',
-'Apple___Cedar_apple_rust',
-'Apple___healthy',
-'Blueberry___healthy',
-'Cherry_(including_sour)___Powdery_mildew',
-'Cherry_(including_sour)___healthy',
-'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
-'Corn_(maize)___Common_rust_',
-'Corn_(maize)___Northern_Leaf_Blight',
-'Corn_(maize)___healthy',
-'Grape___Black_rot', 
-'Grape___Esca_(Black_Measles)',
-'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)',
-'Grape___healthy',
-'Orange___Haunglongbing_(Citrus_greening)',
-'Peach___Bacterial_spot',
-'Peach___healthy',
-'Pepper,_bell___Bacterial_spot',
-'Pepper,_bell___healthy',
-'Potato___Early_blight',
-'Potato___Late_blight',
-'Potato___healthy',
-'Raspberry___healthy',
-'Soybean___healthy',
-'Squash___Powdery_mildew',
-'Strawberry___Leaf_scorch',
-'Strawberry___healthy', 
-'Tomato___Bacterial_spot', 
-'Tomato___Early_blight', 
-'Tomato___Late_blight', 
-'Tomato___Leaf_Mold',
-'Tomato___Septoria_leaf_spot',
-'Tomato___Spider_mites Two-spotted_spider_mite',
-'Tomato___Target_Spot',
-'Tomato___Tomato_Yellow_Leaf_Curl_Virus',
-'Tomato___Tomato_mosaic_virus',
-'Tomato___healthy',
-'Unknown']
+CLASS_NAMES = [
+    "Corn Cercospora leaf spot Gray leaf spot", 'Corn Common rust',
+    'Corn (maize) Northern Leaf Blight', 'Corn (maize) healthy',
+    'Potato Early blight', 'Potato Late_blight', 'Potato healthy',
+    'Tomato Bacterial spot', 'Tomato Early blight', 'Tomato Late blight',
+    'Tomato Leaf Mold', 'Tomato Septoria leaf spot',
+    'Tomato Spider mites Two-spotted spider mite', 'Tomato Target Spot',
+    'Tomato Yellow Leaf Curl Virus', 'Tomato mosaic virus',
+    'Tomato healthy'
+]
 
 def read_file_as_image(data) -> np.ndarray:
     """Process uploaded image data and prepare it for model prediction."""
@@ -119,9 +90,13 @@ async def root():
 
 
 @app.post("/voice-token")
-async def get_voice_token():
+async def get_voice_token(request: Request):
     """Generate a LiveKit token for voice assistant connection."""
     try:
+        # Extract prediction data from request body if provided
+        body = await request.json()
+        prediction_data = body.get("predictionData", None)
+        
         # Generate a unique identity for current user session
         identity = f"user_{int(time.time() * 1000)}"
         room_name = f"plantsense_{identity}"
@@ -140,11 +115,14 @@ async def get_voice_token():
         jwt_token = token.to_jwt()
         
         logger.info(f"Generated voice token for identity: {identity}, room: {room_name}")
+        if prediction_data:
+            logger.info(f"Prediction data provided: {prediction_data}")
         
         return {
             "token": jwt_token,
             "url": LIVEKIT_URL,
-            "room": room_name
+            "room": room_name,
+            "predictionData": prediction_data
         }
     except Exception as e:
         logger.error(f"Error generating voice token: {str(e)}")

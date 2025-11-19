@@ -9,8 +9,8 @@ function HybridAssistant() {
   const [error, setError] = useState(null);
   const [mode, setMode] = useState('voice'); // 'voice' or 'text'
 
-  const LIVEKIT_URL = process.env.REACT_APP_LIVEKIT_URL || 'wss://final-llm-a8copwku.livekit.cloud';
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://plant-disease-detector-ax66.onrender.com';
+  const LIVEKIT_URL = "wss://final-llm-a8copwku.livekit.cloud" ;
+  const API_BASE_URL ="https://plant-disease-detector-ax66.onrender.com";
 
   const connectToAssistant = async () => {
     setConnecting(true);

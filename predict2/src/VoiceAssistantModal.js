@@ -8,8 +8,8 @@ function VoiceAssistantModal({ isOpen, onClose }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
-  const LIVEKIT_URL = 'wss://final-llm-a8copwku.livekit.cloud';
-  const API_BASE_URL = 'https://plant-disease-detector-ax66.onrender.com';
+  const LIVEKIT_URL = "wss://final-llm-a8copwku.livekit.cloud" ;
+  const API_BASE_URL ="http://127.0.0.1:8000";
 
   useEffect(() => {
     if (isOpen && !token) {
