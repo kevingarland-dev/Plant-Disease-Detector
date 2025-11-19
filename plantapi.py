@@ -43,7 +43,7 @@ with open("plant_disease_database.json", "r") as f:
     disease_data = json.load(f)
     
 try:
-    MODEL_PATH = "final_model.h5"
+    MODEL_PATH = "plant_disease_1.h5"
     if not os.path.exists(MODEL_PATH):
         raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
     MODEL = tf.keras.models.load_model(MODEL_PATH)
@@ -51,45 +51,17 @@ try:
 except Exception as e:
     logger.error(f"Failed to load model: {str(e)}")
     MODEL = None
-CLASS_NAMES = ['Apple___Apple_scab', 
-'Apple___Black_rot',
-'Apple___Cedar_apple_rust',
-'Apple___healthy',
-'Blueberry___healthy',
-'Cherry_(including_sour)___Powdery_mildew',
-'Cherry_(including_sour)___healthy',
-'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
-'Corn_(maize)___Common_rust_',
-'Corn_(maize)___Northern_Leaf_Blight',
-'Corn_(maize)___healthy',
-'Grape___Black_rot', 
-'Grape___Esca_(Black_Measles)',
-'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)',
-'Grape___healthy',
-'Orange___Haunglongbing_(Citrus_greening)',
-'Peach___Bacterial_spot',
-'Peach___healthy',
-'Pepper,_bell___Bacterial_spot',
-'Pepper,_bell___healthy',
-'Potato___Early_blight',
-'Potato___Late_blight',
-'Potato___healthy',
-'Raspberry___healthy',
-'Soybean___healthy',
-'Squash___Powdery_mildew',
-'Strawberry___Leaf_scorch',
-'Strawberry___healthy', 
-'Tomato___Bacterial_spot', 
-'Tomato___Early_blight', 
-'Tomato___Late_blight', 
-'Tomato___Leaf_Mold',
-'Tomato___Septoria_leaf_spot',
-'Tomato___Spider_mites Two-spotted_spider_mite',
-'Tomato___Target_Spot',
-'Tomato___Tomato_Yellow_Leaf_Curl_Virus',
-'Tomato___Tomato_mosaic_virus',
-'Tomato___healthy',
-'Unknown']
+CLASS_NAMES = [
+    "Corn Cercospora leaf spot Gray leaf spot", 'Corn Common rust',
+    'Corn (maize) Northern Leaf Blight', 'Corn (maize) healthy',
+    'Potato Early blight', 'Potato Late_blight', 'Potato healthy',
+    'Tomato Bacterial spot', 'Tomato Early blight', 'Tomato Late blight',
+    'Tomato Leaf Mold', 'Tomato Septoria leaf spot',
+    'Tomato Spider mites Two-spotted spider mite', 'Tomato Target Spot',
+    'Tomato Yellow Leaf Curl Virus', 'Tomato mosaic virus',
+    'Tomato healthy'
+]
+
 def read_file_as_image(data) -> np.ndarray:
     """Process uploaded image data and prepare it for model prediction."""
     try:
@@ -97,9 +69,6 @@ def read_file_as_image(data) -> np.ndarray:
         
         image = image.resize((256, 256))
         image_array = np.array(image, dtype=np.float32)
-        
-        # Normalize pixel values to 0-1 range
-        image_array = image_array / 255.0
         
         return image_array
     except Exception as e:
@@ -189,15 +158,12 @@ async def predict(file: UploadFile = File(...)):
         # Prediction Logic
         logger.info(f"Making prediction for file: {file.filename}")
         logger.info(f"Image shape after preprocessing: {img_batch.shape}")
-        logger.info(f"Number of classes in CLASS_NAMES: {len(CLASS_NAMES)}")
         predictions = MODEL.predict(img_batch)
         probabilities = predictions[0]
-        logger.info(f"Number of classes in model output: {len(probabilities)}")
         predicted_index = int(np.argmax(probabilities))
         raw_confidence = float(np.max(probabilities))
         confidence = round(raw_confidence * 100, 2)  # Convert to percentage
         predicted_class = CLASS_NAMES[predicted_index] if predicted_index < len(CLASS_NAMES) else str(predicted_index)
-        logger.info(f"Predicted index: {predicted_index}, Predicted class: {predicted_class}, Confidence: {confidence}%")
         
         
         
