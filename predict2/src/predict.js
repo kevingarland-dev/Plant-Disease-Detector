@@ -17,7 +17,7 @@ function PredictScreen() {
 
   
 
-  const API_BASE_URL ="https://plant-disease-detector-ax66.onrender.com";
+  const API_BASE_URL ="https://plantsense.up.railway.app";
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];

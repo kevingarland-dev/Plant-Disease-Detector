@@ -8,8 +8,8 @@ function VoiceAssistantModal({ isOpen, onClose }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
-  const LIVEKIT_URL = "wss://final-llm-a8copwku.livekit.cloud" ;
-  const API_BASE_URL ="http://127.0.0.1:8000";
+  const LIVEKIT_URL = "wss://fafa-bk0tle5p.livekit.cloud" ;
+  const API_BASE_URL ="https://plantsense.up.railway.app";
 
   useEffect(() => {
     if (isOpen && !token) {

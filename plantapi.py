@@ -12,6 +12,7 @@ from fastapi import UploadFile, File, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from livekit import api
 import time
+import random
 
 
 
@@ -202,13 +203,12 @@ async def predict(file: UploadFile = File(...)):
         
         
         
-        # Get disease info from .json file
+        # Get disease info from .json file - randomly select from all matching entries
         normalized_pred = predicted_class.lower().strip()
         description = "Sorry, There's no detailed information for this disease yet."
-        for entry in disease_data:
-            if entry["Disease"].lower().strip() == normalized_pred:
-                description = entry["response"]
-                break
+        matching_entries = [entry for entry in disease_data if entry["Disease"].lower().strip() == normalized_pred]
+        if matching_entries:
+            description = random.choice(matching_entries)["response"]
 
     
     except ValueError as e:
