@@ -45,7 +45,7 @@ async def entrypoint(ctx: agents.JobContext):
     session = AgentSession(
         stt="assemblyai/universal-streaming:en",
         llm="openai/gpt-4.1-mini",
-        tts="cartesia/sonic-2:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
+        tts="cartesia/sonic-2:2ce680f2-df85-4b45-bcbd-231e7d4519bb",
         vad=silero.VAD.load(),
     )
 
@@ -56,7 +56,7 @@ async def entrypoint(ctx: agents.JobContext):
             # For telephony applications, use `BVCTelephony` instead for best results
             noise_cancellation=noise_cancellation.BVC(),
             text_enabled=True,  # Explicitly enable text input
-        ),
+        )
     )
 
     await session.generate_reply(
