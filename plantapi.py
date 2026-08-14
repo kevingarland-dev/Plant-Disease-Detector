@@ -22,7 +22,10 @@ import random
 
 
 app = FastAPI(title="Plant Disease API", description="Plant disease classification with symptoms and remedies")
-app.mount("/static", StaticFiles(directory="build/static"), name="static")
+
+if os.path.exists("build/static"):
+    app.mount("/static", StaticFiles(directory="build/static"), name="static")
+
 CONFIDENCE_THRESHOLD = 0.70
 
 # LiveKit configuration
@@ -30,33 +33,48 @@ LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY")
 LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET")
 LIVEKIT_URL = os.getenv("LIVEKIT_URL")
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 if not all([LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_URL]):
-    raise EnvironmentError("Missing required LiveKit configuration in environment variables")
+    logger.warning("Missing required LiveKit configuration in environment variables. /voice-token will require these to be set.")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+@app.get("/")
+async def root():
+    return {"status": "online", "service": "PlantSense AI Backend"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"} 
 
 # Load disease data
-with open("plant_disease_database.json", "r") as f:
-    disease_data = json.load(f)
-    
+disease_data = []
+if os.path.exists("plant_disease_database.json"):
+    try:
+        with open("plant_disease_database.json", "r") as f:
+            disease_data = json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading disease database: {e}")
+
+MODEL = None
+MODEL_PATH = "plant_disease_1.h5"
 try:
-    MODEL_PATH = "plant_disease_1.h5"
-    if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
-    MODEL = tf.keras.models.load_model(MODEL_PATH)
-    logger.info(f"Model loaded successfully from {MODEL_PATH}")
+    if os.path.exists(MODEL_PATH):
+        MODEL = tf.keras.models.load_model(MODEL_PATH)
+        logger.info(f"Model loaded successfully from {MODEL_PATH}")
+    else:
+        logger.warning(f"Model file not found at {MODEL_PATH}")
 except Exception as e:
     logger.error(f"Failed to load model: {str(e)}")
-    MODEL = None
+
 CLASS_NAMES = [
     "Corn Cercospora leaf spot Gray leaf spot", 'Corn Common rust',
     'Corn (maize) Northern Leaf Blight', 'Corn (maize) healthy',
@@ -72,24 +90,12 @@ def read_file_as_image(data) -> np.ndarray:
     """Process uploaded image data and prepare it for model prediction."""
     try:
         image = Image.open(BytesIO(data)).convert("RGB")
-        
         image = image.resize((256, 256))
         image_array = np.array(image, dtype=np.float32)
-        
         return image_array
     except Exception as e:
         raise ValueError(f"Error processing image: {str(e)}")
-
-
-@app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
-    file_path = os.path.join("build", "index.html")
-    return FileResponse(file_path)
-
-@app.get("/", response_class=FileResponse)
-async def root():
-    file_path = os.path.join(os.getcwd(), "home.html")
-    return FileResponse(file_path, media_type = "text/html") 
+ 
 
 
 
