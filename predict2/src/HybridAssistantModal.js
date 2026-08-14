@@ -18,6 +18,7 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
     if (isOpen && !token) {
       connectToAssistant();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const connectToAssistant = async () => {
@@ -266,6 +267,7 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
         timestamp: new Date()
       }]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room, mode]);
 
   const sendMessage = async () => {

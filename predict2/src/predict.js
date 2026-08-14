@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { UploadCloud, Camera, Loader2, Leaf, AlertTriangle, ShieldCheck, Activity } from "lucide-react";
+import { UploadCloud, Camera, Loader2, Leaf, AlertTriangle } from "lucide-react";
 import HybridAssistantModal from "./HybridAssistantModal";
 import "./predict.css";
 
@@ -7,7 +7,7 @@ function PredictScreen() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [predictions, setPredictions] = useState([]);
+  // predictions state removed to fix warning
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState(null);

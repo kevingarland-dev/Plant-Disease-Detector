@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Grid, BookOpen } from 'lucide-react';
+import { Leaf, BookOpen } from 'lucide-react';
 import './predict.css';
 
 export default function HerbariumScreen() {
