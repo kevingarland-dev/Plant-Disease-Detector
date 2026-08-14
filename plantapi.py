@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import json
 import logging
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # loads .env from the project root
 import numpy as np
 import tensorflow as tf
 from PIL import Image
@@ -23,10 +26,12 @@ app.mount("/static", StaticFiles(directory="build/static"), name="static")
 CONFIDENCE_THRESHOLD = 0.70
 
 # LiveKit configuration
-LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", )
-LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", )
-LIVEKIT_URL = os.getenv("LIVEKIT_URL", )
+LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY")
+LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET")
+LIVEKIT_URL = os.getenv("LIVEKIT_URL")
 
+if not all([LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_URL]):
+    raise EnvironmentError("Missing required LiveKit configuration in environment variables")
 
 app.add_middleware(
     CORSMiddleware,
@@ -105,7 +110,8 @@ async def get_voice_token(request: Request):
         
         # Generate a unique identity for current user session
         identity = f"user_{int(time.time() * 1000)}"
-        room_name = f"plantsense_{identity}"
+        # Use a fixed room name so the Windows agent (agent_windows.py) is always in the same room
+        room_name = "plant-voice-assistant"
         
         # Create token with LiveKit API
         token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)

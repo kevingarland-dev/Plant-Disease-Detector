@@ -1,14 +1,14 @@
 """
 Windows-compatible voice agent that connects directly to LiveKit rooms.
-This bypasses the Worker framework which has Windows compatibility issues.
+Compatible with livekit-agents v1.6+
 """
 import asyncio
 import logging
 import os
-import aiohttp
 from dotenv import load_dotenv
 from livekit import rtc, api
-from livekit.agents import AgentSession, Agent, RoomInputOptions, JobContext, JobRequest, utils
+from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.agents.utils import http_context
 from livekit.plugins import noise_cancellation, silero
 
 # Load environment variables
@@ -29,20 +29,30 @@ LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET")
 class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
-            instructions="""You are a helpful voice AI assistant.
-            You eagerly assist users with their questions by providing information from your extensive knowledge.
-            Your responses are concise, to the point, and without any complex formatting or punctuation including emojis, asterisks, or other symbols.
-            You are curious, friendly, and have a sense of humor.
-            You will assist users with information relating to a disease their plant has.
-            You will provide treatment advice based on the disease the user describes
-            You will ask relevant questions to diagnose the disease and provide treatment options.
-            If you are unsure about something, you will ask for clarification.""",
+            instructions="""You are PlantSense Voice Assistant, a specialized AI for plant disease diagnosis and treatment.
+
+            Your capabilities:
+            - Help users identify plant diseases based on their descriptions
+            - Provide detailed treatment advice and remedies
+            - Answer questions about plant health, symptoms, and care
+            - Guide users through the diagnosis process
+
+            Your knowledge includes diseases for:
+            - Corn/Maize (Cercospora leaf spot, Common rust, Northern Leaf Blight)
+            - Potato (Early blight, Late blight)
+            - Tomato (Bacterial spot, Early blight, Late blight, Leaf Mold, Septoria leaf spot, Spider mites, Target Spot, Yellow Leaf Curl Virus, Mosaic virus)
+
+            Communication style:
+            - Be conversational, friendly, and empathetic
+            - Use clear, simple language without technical jargon unless necessary
+            - Keep responses concise and to the point
+            - No emojis, asterisks, or complex formatting in speech
+            - Ask clarifying questions when needed""",
         )
 
 
-async def run_agent_in_room(room_name: str, http_session: aiohttp.ClientSession):
+async def run_agent_in_room(room_name: str):
     """Connect to a LiveKit room and run the agent."""
-    # Generate token for the agent
     token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
     token.with_identity("plant-assistant-agent")
     token.with_name("PlantSense AI")
@@ -53,7 +63,6 @@ async def run_agent_in_room(room_name: str, http_session: aiohttp.ClientSession)
         can_subscribe=True,
     ))
     
-    # Create room instance
     room = rtc.Room()
     
     try:
@@ -61,16 +70,12 @@ async def run_agent_in_room(room_name: str, http_session: aiohttp.ClientSession)
         await room.connect(LIVEKIT_URL, token.to_jwt())
         logger.info(f"Connected to room: {room_name}")
         
-        # Set up HTTP session context for plugins
-        utils.http_context._session_stack.set([http_session])
-        
-        # Start agent session
+        # livekit-agents v1.6+: no manual HTTP session setup needed
         session = AgentSession(
             stt="assemblyai/universal-streaming:en",
             llm="openai/gpt-4.1-mini",
             tts="cartesia/sonic-2:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
             vad=silero.VAD.load(),
-            # turn_detection removed - not compatible with direct connection
         )
         
         await session.start(
@@ -78,17 +83,17 @@ async def run_agent_in_room(room_name: str, http_session: aiohttp.ClientSession)
             agent=Assistant(),
             room_input_options=RoomInputOptions(
                 noise_cancellation=noise_cancellation.BVC(),
-                text_enabled=True,  # Explicitly enable text input
+                text_enabled=True,
             ),
         )
         
         await session.generate_reply(
-            instructions="Greet the user and offer your assistance."
+            instructions="Greet the user warmly as PlantSense-AI Voice Assistant. Let them know you can help diagnose plant diseases and provide treatment advice. Ask them to describe their plant issue or tell you what plant they are concerned about."
         )
         
         logger.info("Agent session started successfully")
         
-        # Keep the connection alive
+        # Keep alive until room disconnects
         while room.connection_state == rtc.ConnectionState.CONN_CONNECTED:
             await asyncio.sleep(1)
             
@@ -100,20 +105,17 @@ async def run_agent_in_room(room_name: str, http_session: aiohttp.ClientSession)
 
 
 async def monitor_rooms():
-    """Monitor for new rooms and connect agents to them."""
+    """Connect to the fixed room and restart on crash."""
     logger.info("🌱 PlantSense Voice Agent (Windows Mode) starting...")
     logger.info(f"LiveKit URL: {LIVEKIT_URL}")
-    logger.info("Monitoring for room connections...")
     
-    # Create persistent HTTP session
-    async with aiohttp.ClientSession() as http_session:
-        # For simplicity, we'll connect to a fixed room name
-        # In production, you'd want to monitor for new rooms via webhooks
-        ROOM_NAME = "plant-voice-assistant"
-        
+    ROOM_NAME = "plant-voice-assistant"
+    logger.info(f"Joining room: {ROOM_NAME}")
+    
+    async with http_context.open():
         while True:
             try:
-                await run_agent_in_room(ROOM_NAME, http_session)
+                await run_agent_in_room(ROOM_NAME)
             except Exception as e:
                 logger.error(f"Agent crashed, restarting in 5 seconds: {e}")
                 await asyncio.sleep(5)

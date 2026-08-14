@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LiveKitRoom, RoomAudioRenderer, useVoiceAssistant, useRoomContext, useDataChannel, useChat } from '@livekit/components-react';
+import { LiveKitRoom, RoomAudioRenderer, useVoiceAssistant, useRoomContext, useDataChannel } from '@livekit/components-react';
+import { Leaf, Mic, MessageSquare, X, Loader, Send, AlertCircle, User, Info, Lightbulb, BrainCircuit } from 'lucide-react';
 import '@livekit/components-styles';
 import './HybridAssistantModal.css';
+import { RoomEvent } from 'livekit-client';
 
 function HybridAssistantModal({ isOpen, onClose, predictionData }) {
   const [token, setToken] = useState(null);
@@ -10,7 +12,7 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
   const [mode, setMode] = useState('voice'); // 'voice' or 'text'
 
   const LIVEKIT_URL = "wss://fafa-bk0tle5p.livekit.cloud" ;
-  const API_BASE_URL ="https://plantsense.up.railway.app";
+  const API_BASE_URL = "http://127.0.0.1:8000";
 
   useEffect(() => {
     if (isOpen && !token) {
@@ -67,7 +69,7 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
               </>
             ) : error ? (
               <>
-                <div className="hybrid-error-icon">⚠️</div>
+                <AlertCircle className="hybrid-error-icon" size={48} color="#d32f2f" />
                 <p className="hybrid-error-text">{error}</p>
                 <button className="hybrid-retry-btn" onClick={connectToAssistant}>
                   Retry Connection
@@ -101,6 +103,7 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
 function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
   const [mode, setMode] = useState(initialMode);
   const [messages, setMessages] = useState([]);
+  const [streamingText, setStreamingText] = useState('');
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [predictionSent, setPredictionSent] = useState(false);
@@ -132,19 +135,44 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
         return;
       }
       
-      console.log('📝 Decoded text:', text);
+      // Attempt to parse JSON (LiveKit ChatManager format)
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.message) {
+          text = parsed.message;
+        }
+      } catch (e) {
+        // Not JSON, use raw text
+      }
+      
+      console.log('📝 Processed text:', text);
       console.log('👤 From participant:', participant?.identity);
       console.log('🏠 Local participant:', room?.localParticipant?.identity);
       
       // Add message if it's from someone else
       if (participant?.identity !== room?.localParticipant?.identity) {
         console.log('✅ Adding message to chat');
-        setMessages(prev => [...prev, {
-          id: Date.now(),
-          text: text,
-          sender: 'agent',
-          timestamp: new Date()
-        }]);
+        setMessages(prev => {
+          const lastMsg = prev[prev.length - 1];
+          // Prevent duplicates if DataChannel and Transcription arrive at the same time
+          if (lastMsg && lastMsg.text.includes(text)) return prev;
+          
+          if (lastMsg && lastMsg.sender === 'agent') {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...lastMsg,
+              text: (lastMsg.text + ' ' + text).trim()
+            };
+            return updated;
+          } else {
+            return [...prev, {
+              id: Date.now(),
+              text: text,
+              sender: 'agent',
+              timestamp: new Date()
+            }];
+          }
+        });
       } else {
         console.log('⏭️ Skipping own message');
       }
@@ -156,59 +184,55 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
   // Listen to lk.chat (for user messages)
   useDataChannel('lk.chat', onDataReceived);
 
-  // Listen for transcription messages (agent responses) using text stream
+  // Listen for transcriptions (agent speech converted to text)
   useEffect(() => {
     if (!room) return;
 
-    const handleTextStream = async (text, participant, publication) => {
-      console.log('📨 Text stream received:', { 
-        text, 
-        participant: participant?.identity,
-        topic: publication?.topic 
-      });
-      
+    const handleTranscription = (segments, participant) => {
       if (participant?.identity !== room.localParticipant.identity) {
-        console.log('✅ Adding text to chat from:', participant?.identity);
-        setMessages(prev => [...prev, {
-          id: Date.now(),
-          text: text,
-          sender: 'agent',
-          timestamp: new Date()
-        }]);
-      }
-    };
-
-    // Subscribe to text streams from remote participants
-    const subscribeToTextStreams = async () => {
-      for (const [, participant] of room.remoteParticipants) {
-        console.log('👥 Subscribing to text from:', participant.identity);
+        const finalSegments = segments.filter(s => s.final);
+        const nonFinalSegments = segments.filter(s => !s.final);
         
-        // Listen for text received from this participant
-        participant.on('textReceived', (text, publication) => {
-          handleTextStream(text, participant, publication);
-        });
+        let finalText = '';
+        if (finalSegments.length > 0) {
+          finalText = finalSegments.map(s => s.text).join(' ').trim();
+        }
+        
+        let tempText = '';
+        if (nonFinalSegments.length > 0) {
+          tempText = nonFinalSegments.map(s => s.text).join(' ').trim();
+        }
+        
+        setStreamingText(tempText);
+        
+        if (finalText) {
+          setMessages(prev => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg && lastMsg.sender === 'agent') {
+              if (lastMsg.text.endsWith(finalText)) return prev;
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                ...lastMsg,
+                text: (lastMsg.text + ' ' + finalText).trim()
+              };
+              return updated;
+            } else {
+              return [...prev, {
+                id: Date.now() + Math.random(),
+                text: finalText,
+                sender: 'agent',
+                timestamp: new Date()
+              }];
+            }
+          });
+        }
       }
     };
 
-    // Subscribe to existing participants
-    subscribeToTextStreams();
-
-    // Subscribe to new participants
-    const handleParticipantConnected = (participant) => {
-      console.log('🆕 New participant connected:', participant.identity);
-      participant.on('textReceived', (text, publication) => {
-        handleTextStream(text, participant, publication);
-      });
-    };
-
-    room.on('participantConnected', handleParticipantConnected);
+    room.on(RoomEvent.TranscriptionReceived, handleTranscription);
 
     return () => {
-      room.off('participantConnected', handleParticipantConnected);
-      // Clean up participant listeners
-      for (const [, participant] of room.remoteParticipants) {
-        participant.off('textReceived', handleTextStream);
-      }
+      room.off(RoomEvent.TranscriptionReceived, handleTranscription);
     };
   }, [room]);
 
@@ -303,9 +327,9 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
     <div className="hybrid-modal-ui">
       <div className="hybrid-modal-header">
         <div className="hybrid-modal-header-info">
-          <h3>🌱 PlantSense AI</h3>
+          <h3><Leaf size={20} style={{marginRight: '8px', verticalAlign: 'text-bottom'}}/> PlantSense.AI</h3>
           <span className="hybrid-modal-mode-badge">
-            {mode === 'voice' ? '🎤 Voice Mode' : '💬 Text Mode'}
+            {mode === 'voice' ? <><Mic size={14} style={{verticalAlign: 'text-bottom', marginRight: '4px'}}/> Voice Mode</> : <><MessageSquare size={14} style={{verticalAlign: 'text-bottom', marginRight: '4px'}}/> Text Mode</>}
           </span>
         </div>
         <div className="hybrid-modal-header-actions">
@@ -314,10 +338,10 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
             onClick={toggleMode}
             title={`Switch to ${mode === 'voice' ? 'text' : 'voice'} mode`}
           >
-            {mode === 'voice' ? '💬' : '🎤'}
+            {mode === 'voice' ? <MessageSquare size={18} /> : <Mic size={18} />}
           </button>
           <button className="hybrid-modal-close-btn" onClick={onDisconnect}>
-            ✕
+            <X size={20} />
           </button>
         </div>
       </div>
@@ -327,6 +351,7 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
       ) : (
         <TextMode 
           messages={messages}
+          streamingText={streamingText}
           inputText={inputText}
           setInputText={setInputText}
           isSending={isSending}
@@ -340,15 +365,7 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
 }
 
 function VoiceMode({ state }) {
-  const [agentHasSpoken, setAgentHasSpoken] = useState(false);
-
-  useEffect(() => {
-    if (state === 'speaking' && !agentHasSpoken) {
-      setAgentHasSpoken(true);
-    }
-  }, [state, agentHasSpoken]);
-
-  const isWaiting = !agentHasSpoken && state !== 'speaking';
+  const isWaiting = state === 'initializing' || state === 'disconnected' || !state;
   const isThinking = state === 'thinking';
   const isListening = state === 'listening';
 
@@ -358,7 +375,12 @@ function VoiceMode({ state }) {
         <div className={`modal-voice-indicator ${isWaiting ? 'waiting' : isThinking ? 'thinking' : isListening ? 'listening' : 'speaking'}`}>
           <div className="modal-voice-pulse"></div>
           {isThinking && <div className="modal-voice-pulse-secondary"></div>}
-          <div className="modal-voice-icon">{isWaiting ? '⏳' : '🎤'}</div>
+          <div className="modal-voice-icon">
+            {isWaiting ? <Loader className="spin" size={44} color="#7a9c7a" /> : 
+             isListening ? <Mic size={44} color="#3e5c3e" /> : 
+             isThinking ? <BrainCircuit size={44} color="#3e5c3e" /> : 
+             <Mic size={44} color="#2b3a2f" />}
+          </div>
         </div>
         <div className="modal-voice-state-text">
           {isWaiting ? 'Initializing...' :
@@ -384,18 +406,36 @@ function VoiceMode({ state }) {
   );
 }
 
-function TextMode({ messages, inputText, setInputText, isSending, sendMessage, handleKeyPress, messagesEndRef }) {
+function TextMode({ messages, streamingText, inputText, setInputText, isSending, sendMessage, handleKeyPress, messagesEndRef }) {
+  const displayMessages = [...messages];
+  if (streamingText) {
+    if (displayMessages.length > 0 && displayMessages[displayMessages.length - 1].sender === 'agent') {
+      const last = displayMessages[displayMessages.length - 1];
+      displayMessages[displayMessages.length - 1] = {
+        ...last,
+        text: (last.text + ' ' + streamingText).trim()
+      };
+    } else {
+      displayMessages.push({
+        id: 'streaming-temp',
+        text: streamingText,
+        sender: 'agent',
+        timestamp: new Date()
+      });
+    }
+  }
+
   return (
     <div className="modal-text-mode">
       <div className="modal-chat-messages">
-        {messages.map((msg) => (
+        {displayMessages.map((msg) => (
           <div 
             key={msg.id} 
             className={`modal-chat-message ${msg.sender}`}
           >
             <div className="modal-message-content">
-              <div className="modal-message-avatar">
-                {msg.sender === 'agent' ? '🌱' : msg.sender === 'user' ? '👤' : 'ℹ️'}
+              <div className={`modal-message-avatar ${msg.sender}`}>
+                {msg.sender === 'agent' ? <Leaf size={20} color="#3e5c3e" /> : msg.sender === 'user' ? <User size={20} color="#ffffff" /> : <Info size={20} color="#1976d2" />}
               </div>
               <div className="modal-message-bubble">
                 <p>{msg.text}</p>
@@ -424,12 +464,12 @@ function TextMode({ messages, inputText, setInputText, isSending, sendMessage, h
           onClick={sendMessage}
           disabled={!inputText.trim() || isSending}
         >
-          {isSending ? '⏳' : '➤'}
+          {isSending ? <Loader className="spin" size={20} /> : <Send size={20} />}
         </button>
       </div>
 
       <div className="modal-chat-footer">
-        <p className="modal-chat-tip">💡 Tip: Describe symptoms like leaf color, spots, or wilting</p>
+        <p className="modal-chat-tip"><Lightbulb size={14} style={{verticalAlign: 'text-bottom', marginRight: '4px'}} /> Tip: Describe symptoms like leaf color, spots, or wilting</p>
       </div>
     </div>
   );
