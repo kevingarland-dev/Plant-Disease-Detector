@@ -18,7 +18,6 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from io import BytesIO
-from livekit import api
 import time
 import random
 
@@ -182,6 +181,11 @@ async def get_voice_token(request: Request):
         room_name = "plant-voice-assistant"
         
         # Create token with LiveKit API
+        try:
+            from livekit import api
+        except ImportError:
+            raise HTTPException(status_code=501, detail="LiveKit is not installed on this server.")
+
         token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
         token.with_identity(identity).with_name(identity).with_grants(
             api.VideoGrants(
