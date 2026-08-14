@@ -124,7 +124,6 @@ function PredictScreen() {
 
     setLoading(true);
     setResult(null);
-    setPredictions([]);
 
     try {
       const response = await fetch(`${API_BASE_URL}/predict`, {
@@ -148,7 +147,6 @@ function PredictScreen() {
         confidence: data.confidence,
         isUncertain: data.isUncertain === true
       });
-      setPredictions(data.predictions || []);
     } catch (error) {
       setResult({ disease: "Error", description: error.message });
     } finally {
