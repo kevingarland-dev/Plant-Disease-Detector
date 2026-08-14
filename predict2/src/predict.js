@@ -16,7 +16,7 @@ function PredictScreen() {
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  const API_BASE_URL = "http://127.0.0.1:8000";
+  const API_BASE_URL = "https://plant-disease-detector-production-6e4b.up.railway.app";
 
   const handleDrag = (e) => {
     e.preventDefault();
