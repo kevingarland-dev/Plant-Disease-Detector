@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Mail, MapPin } from 'lucide-react';
+import { Leaf, Mail, Phone, MapPin } from 'lucide-react';
 import './predict.css';
 
 export default function ContactScreen() {

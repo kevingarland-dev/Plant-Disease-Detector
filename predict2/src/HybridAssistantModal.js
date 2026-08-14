@@ -1,323 +1,59 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Leaf, Mic, MicOff, MessageSquare, X, Send, Volume2, VolumeX, Sparkles, AlertCircle } from 'lucide-react';
+import { LiveKitRoom, RoomAudioRenderer, useVoiceAssistant, useRoomContext, useDataChannel } from '@livekit/components-react';
+import { Leaf, Mic, MessageSquare, X, Loader, Send, AlertCircle, User, Info, Lightbulb, BrainCircuit } from 'lucide-react';
+import '@livekit/components-styles';
 import './HybridAssistantModal.css';
-
-const API_BASE_URL = "https://plant-disease-detector-production-6e4b.up.railway.app";
+import { RoomEvent } from 'livekit-client';
 
 function HybridAssistantModal({ isOpen, onClose, predictionData }) {
-  const [mode, setMode] = useState('voice'); // 'voice' or 'text'
-  const [voiceState, setVoiceState] = useState('waiting'); // 'waiting', 'listening', 'thinking', 'speaking'
-  const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState('');
-  const [streamingText, setStreamingText] = useState('');
-  const [isMuted, setIsMuted] = useState(false);
-  const [isListening, setIsListening] = useState(false);
+  const [token, setToken] = useState(null);
+  const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
+  const [mode, setMode] = useState('voice'); // 'voice' or 'text'
 
-  const messagesEndRef = useRef(null);
-  const recognitionRef = useRef(null);
-  const synthRef = useRef(window.speechSynthesis || null);
+  const LIVEKIT_URL = "wss://fafa-bk0tle5p.livekit.cloud" ;
+  const API_BASE_URL = "https://plant-disease-detector-production-6e4b.up.railway.app";
 
-  // Initialize speech recognition
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
-
-      recognition.onstart = () => {
-        setIsListening(true);
-        setVoiceState('listening');
-        setStreamingText('');
-      };
-
-      recognition.onresult = (event) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
-          }
-        }
-
-        setStreamingText(interimTranscript || finalTranscript);
-
-        if (finalTranscript) {
-          handleSendMessage(finalTranscript);
-        }
-      };
-
-      recognition.onerror = (event) => {
-        console.warn('Speech recognition event:', event.error);
-        setIsListening(false);
-        if (event.error !== 'no-speech') {
-          setError(`Microphone: ${event.error}`);
-        }
-        setVoiceState('waiting');
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-        if (voiceState === 'listening') {
-          setVoiceState('waiting');
-        }
-      };
-
-      recognitionRef.current = recognition;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voiceState]);
-
-  // Handle modal open/close & initial greeting
-  useEffect(() => {
-    if (isOpen) {
-      setError(null);
-      setStreamingText('');
-      
-      let initialGreeting = "Hello! I'm PlantSense AI. I can help diagnose plant diseases and provide treatment advice. How can I help you today?";
-      if (predictionData && predictionData.disease) {
-        initialGreeting = `Hello! I see you just analyzed a plant with ${predictionData.disease} (${predictionData.confidence}% confidence). Would you like treatment steps or prevention tips for this?`;
-      }
-
-      setMessages([
-        {
-          id: 'initial',
-          sender: 'agent',
-          text: initialGreeting,
-          timestamp: new Date()
-        }
-      ]);
-
-      if (mode === 'voice' && !isMuted) {
-        speakText(initialGreeting);
-      }
-    } else {
-      stopListening();
-      if (synthRef.current) {
-        synthRef.current.cancel();
-      }
+    if (isOpen && !token) {
+      connectToAssistant();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // Auto-scroll messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, streamingText]);
-
-  const currentAudioRef = useRef(null);
-
-  const playAudioOrFallback = (text, audioBase64) => {
-    if (isMuted) return;
-
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current = null;
-    }
-
-    if (audioBase64) {
-      try {
-        const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
-        currentAudioRef.current = audio;
-        setVoiceState('speaking');
-        audio.onended = () => {
-          setVoiceState('waiting');
-          currentAudioRef.current = null;
-        };
-        audio.onerror = () => {
-          console.warn('Audio playback error, falling back to speech synthesis');
-          speakText(text);
-        };
-        audio.play().catch(() => {
-          speakText(text);
-        });
-        return;
-      } catch (err) {
-        console.warn('Error playing base64 audio:', err);
-      }
-    }
-
-    speakText(text);
-  };
-
-  const speakText = (text) => {
-    if (isMuted || !synthRef.current) return;
+  const connectToAssistant = async () => {
+    setConnecting(true);
+    setError(null);
+    
     try {
-      synthRef.current.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-      
-      const voices = synthRef.current.getVoices();
-      const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Female')));
-      if (englishVoice) {
-        utterance.voice = englishVoice;
-      }
-
-      utterance.onstart = () => setVoiceState('speaking');
-      utterance.onend = () => setVoiceState('waiting');
-      utterance.onerror = () => setVoiceState('waiting');
-
-      synthRef.current.speak(utterance);
-    } catch (e) {
-      console.warn('Speech synthesis error:', e);
-      setVoiceState('waiting');
-    }
-  };
-
-  const startListening = () => {
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current = null;
-    }
-    if (synthRef.current) {
-      synthRef.current.cancel();
-    }
-    if (recognitionRef.current && !isListening) {
-      try {
-        recognitionRef.current.start();
-      } catch (err) {
-        console.warn('Recognition start error:', err);
-      }
-    }
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current && isListening) {
-      try {
-        recognitionRef.current.stop();
-      } catch (err) {
-        console.warn('Recognition stop error:', err);
-      }
-    }
-    setIsListening(false);
-  };
-
-  const handleSendMessage = async (textToSend) => {
-    const query = (textToSend || inputText).trim();
-    if (!query) return;
-
-    setInputText('');
-    setStreamingText('');
-    stopListening();
-
-    const userMessage = {
-      id: Date.now(),
-      sender: 'user',
-      text: query,
-      timestamp: new Date()
-    };
-
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setVoiceState('thinking');
-
-    try {
-      const formattedHistory = newMessages.map(m => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.text
-      }));
-
-      const response = await fetch(`${API_BASE_URL}/assistant/chat`, {
+      const response = await fetch(`${API_BASE_URL}/voice-token`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          messages: formattedHistory,
-          predictionData: predictionData,
-          voice: "nova" // Natural human voice
-        })
+          predictionData: predictionData
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error('Failed to get token');
       }
 
       const data = await response.json();
-      const aiReply = data.reply || "I'm sorry, I couldn't generate a response. Please try again.";
-
-      // Typing animation
-      let currentWordIndex = 0;
-      const words = aiReply.split(' ');
-      const agentMsgId = Date.now() + 1;
-
-      setMessages(prev => [
-        ...prev,
-        {
-          id: agentMsgId,
-          sender: 'agent',
-          text: words[0] || '',
-          timestamp: new Date()
-        }
-      ]);
-
-      const interval = setInterval(() => {
-        currentWordIndex++;
-        if (currentWordIndex < words.length) {
-          const partialText = words.slice(0, currentWordIndex + 1).join(' ');
-          setMessages(prev => {
-            const updated = [...prev];
-            const last = updated[updated.length - 1];
-            if (last && last.id === agentMsgId) {
-              last.text = partialText;
-            }
-            return updated;
-          });
-        } else {
-          clearInterval(interval);
-        }
-      }, 35);
-
-      // Play high quality voice audio if in voice mode
-      if (mode === 'voice' && !isMuted) {
-        playAudioOrFallback(aiReply, data.audio);
-      } else {
-        setVoiceState('waiting');
-      }
-
+      setToken(data.token);
+      setConnecting(false);
     } catch (err) {
-      console.error('Chat error:', err);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: 'agent',
-          text: "I'm having trouble connecting to the knowledge base right now. Please check your connection and try again.",
-          timestamp: new Date()
-        }
-      ]);
-      setVoiceState('waiting');
+      console.error('Error connecting to assistant:', err);
+      setError(err.message);
+      setConnecting(false);
     }
   };
 
   const handleClose = () => {
-    stopListening();
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current = null;
-    }
-    if (synthRef.current) {
-      synthRef.current.cancel();
-    }
+    setToken(null);
+    setError(null);
     onClose();
-  };
-
-  const toggleMute = () => {
-    if (!isMuted) {
-      if (currentAudioRef.current) {
-        currentAudioRef.current.pause();
-        currentAudioRef.current = null;
-      }
-      if (synthRef.current) {
-        synthRef.current.cancel();
-      }
-      setVoiceState('waiting');
-    }
-    setIsMuted(!isMuted);
   };
 
   if (!isOpen) return null;
@@ -325,195 +61,422 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
   return (
     <div className="hybrid-modal-overlay" onClick={handleClose}>
       <div className="hybrid-modal-content" onClick={(e) => e.stopPropagation()}>
-        
-        {/* Header */}
-        <div className="hybrid-modal-header">
-          <div className="hybrid-modal-header-info">
-            <Leaf size={22} color="#a7f3d0" />
-            <div>
-              <h3>PlantSense AI</h3>
-            </div>
-            <span className="hybrid-modal-mode-badge">
-              {mode === 'voice' ? 'Voice Assistant' : 'Text Chat'}
-            </span>
-          </div>
-
-          <div className="hybrid-modal-header-actions">
-            {mode === 'voice' && (
-              <button 
-                className="modal-mode-toggle-btn" 
-                onClick={toggleMute}
-                title={isMuted ? "Unmute Voice" : "Mute Voice"}
-              >
-                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-              </button>
-            )}
-
-            <button 
-              className="modal-mode-toggle-btn"
-              onClick={() => {
-                const nextMode = mode === 'voice' ? 'text' : 'voice';
-                setMode(nextMode);
-                if (nextMode === 'text') {
-                  stopListening();
-                  if (synthRef.current) synthRef.current.cancel();
-                }
-              }}
-              title={mode === 'voice' ? "Switch to Text Chat" : "Switch to Voice Mode"}
-            >
-              {mode === 'voice' ? <MessageSquare size={18} /> : <Mic size={18} />}
-            </button>
-
-            <button className="hybrid-modal-close-btn" onClick={handleClose} title="Close">
-              <X size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* VOICE MODE */}
-        {mode === 'voice' ? (
-          <div className="modal-voice-mode">
-            <div className="modal-voice-status-container">
-              
-              <div 
-                className={`modal-voice-indicator ${voiceState}`}
-                onClick={isListening ? stopListening : startListening}
-                style={{ cursor: 'pointer' }}
-                title={isListening ? "Click to stop listening" : "Click to speak"}
-              >
-                <div className="modal-voice-pulse"></div>
-                <div className="modal-voice-pulse-secondary"></div>
-                <div className="modal-voice-icon">
-                  {voiceState === 'listening' ? (
-                    <Mic size={48} color="#22c55e" />
-                  ) : voiceState === 'speaking' ? (
-                    <Volume2 size={48} color="#059669" />
-                  ) : voiceState === 'thinking' ? (
-                    <Sparkles size={48} color="#f59e0b" />
-                  ) : (
-                    <MicOff size={48} color="#6b7280" />
-                  )}
-                </div>
-              </div>
-
-              <div className="modal-voice-state-text">
-                {voiceState === 'listening' && "Listening to you..."}
-                {voiceState === 'thinking' && "Analyzing..."}
-                {voiceState === 'speaking' && "PlantSense is speaking..."}
-                {voiceState === 'waiting' && "Tap the microphone to speak"}
-              </div>
-
-              {streamingText && (
-                <div style={{
-                  background: 'rgba(34, 197, 94, 0.1)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                  padding: '12px 20px',
-                  borderRadius: '16px',
-                  maxWidth: '85%',
-                  textAlign: 'center',
-                  color: '#1e3a1e',
-                  fontSize: '15px',
-                  fontWeight: '500'
-                }}>
-                  "{streamingText}"
-                </div>
-              )}
-            </div>
-
-            {/* Recent agent message transcript display */}
-            {messages.length > 0 && (
-              <div style={{
-                maxHeight: '160px',
-                overflowY: 'auto',
-                padding: '16px',
-                background: '#ffffff',
-                borderRadius: '16px',
-                border: '1px solid #e5e7eb',
-                width: '90%',
-                maxWidth: '540px',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.03)'
-              }}>
-                <div style={{ fontSize: '12px', fontWeight: '600', color: '#059669', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Latest Response
-                </div>
-                <p style={{ margin: 0, fontSize: '14.5px', lineHeight: '1.6', color: '#1f2937' }}>
-                  {messages[messages.length - 1].text}
-                </p>
-              </div>
-            )}
-
-            {error && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444', fontSize: '13px', marginTop: '16px' }}>
-                <AlertCircle size={16} />
-                <span>{error}</span>
-              </div>
-            )}
+        {!token ? (
+          <div className="hybrid-modal-connecting">
+            {connecting ? (
+              <>
+                <div className="hybrid-spinner"></div>
+                <p>Connecting to PlantSense AI...</p>
+              </>
+            ) : error ? (
+              <>
+                <AlertCircle className="hybrid-error-icon" size={48} color="#d32f2f" />
+                <p className="hybrid-error-text">{error}</p>
+                <button className="hybrid-retry-btn" onClick={connectToAssistant}>
+                  Retry Connection
+                </button>
+              </>
+            ) : null}
           </div>
         ) : (
-          /* TEXT MODE */
-          <div className="modal-text-mode">
-            <div className="modal-chat-messages">
-              {messages.map((msg, index) => (
-                <div key={index} className={`modal-chat-message ${msg.sender}`}>
-                  <div className="modal-message-content">
-                    <div className="modal-message-bubble">
-                      <p>{msg.text}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
+          <LiveKitRoom
+            token={token}
+            serverUrl={LIVEKIT_URL}
+            connect={true}
+            audio={mode === 'voice'}
+            video={false}
+            onDisconnected={handleClose}
+          >
+            <HybridUI 
+              initialMode={mode} 
+              onDisconnect={handleClose}
+              onModeChange={setMode}
+              predictionData={predictionData}
+            />
+            {mode === 'voice' && <RoomAudioRenderer />}
+          </LiveKitRoom>
+        )}
+      </div>
+    </div>
+  );
+}
 
-            {/* Suggested quick chips if looking at a diagnosis */}
-            {predictionData && predictionData.disease && messages.length <= 2 && (
-              <div style={{ display: 'flex', gap: '8px', padding: '0 20px 10px', overflowX: 'auto' }}>
-                {["Organic treatment", "Chemical fungicide", "How to prevent spread"].map((suggestion, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSendMessage(`What is the recommended ${suggestion.toLowerCase()} for ${predictionData.disease}?`)}
-                    style={{
-                      background: '#f0fdf4',
-                      border: '1px solid #bbf7d0',
-                      color: '#166534',
-                      padding: '6px 12px',
-                      borderRadius: '20px',
-                      fontSize: '12.5px',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    💡 {suggestion}
-                  </button>
-                ))}
+function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
+  const [mode, setMode] = useState(initialMode);
+  const [messages, setMessages] = useState([]);
+  const [streamingText, setStreamingText] = useState('');
+  const [inputText, setInputText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [predictionSent, setPredictionSent] = useState(false);
+  const messagesEndRef = useRef(null);
+  const room = useRoomContext();
+  const { state } = useVoiceAssistant();
+
+  // Listen for incoming text messages from the agent
+  const onDataReceived = (payload, participant, kind, topic) => {
+    console.log('🔔 Data received:', { 
+      topic, 
+      kind, 
+      participantIdentity: participant?.identity,
+      localIdentity: room?.localParticipant?.identity,
+      payloadType: typeof payload,
+      payloadLength: payload?.length || payload?.byteLength
+    });
+    
+    // Try to decode the payload
+    let text;
+    try {
+      if (typeof payload === 'string') {
+        text = payload;
+      } else if (payload instanceof Uint8Array || payload instanceof ArrayBuffer) {
+        const decoder = new TextDecoder();
+        text = decoder.decode(payload);
+      } else {
+        console.warn('Unknown payload type:', payload);
+        return;
+      }
+      
+      // Attempt to parse JSON (LiveKit ChatManager format)
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.message) {
+          text = parsed.message;
+        }
+      } catch (e) {
+        // Not JSON, use raw text
+      }
+      
+      console.log('📝 Processed text:', text);
+      console.log('👤 From participant:', participant?.identity);
+      console.log('🏠 Local participant:', room?.localParticipant?.identity);
+      
+      // Add message if it's from someone else
+      if (participant?.identity !== room?.localParticipant?.identity) {
+        console.log('✅ Adding message to chat');
+        setMessages(prev => {
+          const lastMsg = prev[prev.length - 1];
+          // Prevent duplicates if DataChannel and Transcription arrive at the same time
+          if (lastMsg && lastMsg.text.includes(text)) return prev;
+          
+          if (lastMsg && lastMsg.sender === 'agent') {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...lastMsg,
+              text: (lastMsg.text + ' ' + text).trim()
+            };
+            return updated;
+          } else {
+            return [...prev, {
+              id: Date.now(),
+              text: text,
+              sender: 'agent',
+              timestamp: new Date()
+            }];
+          }
+        });
+      } else {
+        console.log('⏭️ Skipping own message');
+      }
+    } catch (error) {
+      console.error('Error decoding message:', error);
+    }
+  };
+
+  // Listen to lk.chat (for user messages)
+  useDataChannel('lk.chat', onDataReceived);
+
+  // Listen for transcriptions (agent speech converted to text)
+  useEffect(() => {
+    if (!room) return;
+
+    const handleTranscription = (segments, participant) => {
+      if (participant?.identity !== room.localParticipant.identity) {
+        const finalSegments = segments.filter(s => s.final);
+        const nonFinalSegments = segments.filter(s => !s.final);
+        
+        let finalText = '';
+        if (finalSegments.length > 0) {
+          finalText = finalSegments.map(s => s.text).join(' ').trim();
+        }
+        
+        let tempText = '';
+        if (nonFinalSegments.length > 0) {
+          tempText = nonFinalSegments.map(s => s.text).join(' ').trim();
+        }
+        
+        setStreamingText(tempText);
+        
+        if (finalText) {
+          setMessages(prev => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg && lastMsg.sender === 'agent') {
+              if (lastMsg.text.endsWith(finalText)) return prev;
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                ...lastMsg,
+                text: (lastMsg.text + ' ' + finalText).trim()
+              };
+              return updated;
+            } else {
+              return [...prev, {
+                id: Date.now() + Math.random(),
+                text: finalText,
+                sender: 'agent',
+                timestamp: new Date()
+              }];
+            }
+          });
+        }
+      }
+    };
+
+    room.on(RoomEvent.TranscriptionReceived, handleTranscription);
+
+    return () => {
+      room.off(RoomEvent.TranscriptionReceived, handleTranscription);
+    };
+  }, [room]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Send prediction data to agent when room connects
+  useEffect(() => {
+    if (room && predictionData && !predictionSent) {
+      const predictionMessage = `The user just analyzed a plant image. Here's the diagnosis: Disease: ${predictionData.disease}, Confidence: ${predictionData.confidence}%, Description: ${predictionData.description}. Please acknowledge this information and be ready to provide more detailed advice about this disease.`;
+      
+      const sendPred = async () => {
+        try {
+          if (room.localParticipant && room.state === 'connected') {
+            await room.localParticipant.sendText(predictionMessage, { topic: 'lk.chat' });
+            setPredictionSent(true);
+            console.log('✅ Prediction data sent to agent');
+          }
+        } catch (err) {
+          console.error('Error sending prediction data:', err);
+        }
+      };
+      sendPred();
+    }
+  }, [room, predictionData, predictionSent]);
+
+  // Add welcome message when connected in text mode
+  useEffect(() => {
+    if (room && mode === 'text' && messages.length === 0) {
+      setMessages([{
+        id: Date.now(),
+        text: "Hello! I'm PlantSense AI. I can help you diagnose plant diseases and provide treatment advice. What plant issue can I help you with today?",
+        sender: 'agent',
+        timestamp: new Date()
+      }]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room, mode]);
+
+  const sendMessage = async () => {
+    if (!inputText.trim() || isSending || !room) return;
+
+    const userMessage = inputText.trim();
+    setInputText('');
+    setIsSending(true);
+
+    // Add user message to chat
+    setMessages(prev => [...prev, {
+      id: Date.now(),
+      text: userMessage,
+      sender: 'user',
+      timestamp: new Date()
+    }]);
+
+    try {
+      // Send text to the agent via LiveKit text stream
+      console.log('Sending text message:', userMessage);
+      await room.localParticipant.sendText(userMessage, { topic: 'lk.chat' });
+      console.log('Text message sent successfully');
+    } catch (err) {
+      console.error('Error sending message:', err);
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        text: "Sorry, I couldn't send your message. Please try again.",
+        sender: 'system',
+        timestamp: new Date()
+      }]);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const toggleMode = () => {
+    const newMode = mode === 'voice' ? 'text' : 'voice';
+    setMode(newMode);
+    onModeChange(newMode);
+    
+    if (newMode === 'text' && messages.length === 0) {
+      setMessages([{
+        id: Date.now(),
+        text: "Switched to text mode. How can I help you with your plants?",
+        sender: 'agent',
+        timestamp: new Date()
+      }]);
+    }
+  };
+
+  return (
+    <div className="hybrid-modal-ui">
+      <div className="hybrid-modal-header">
+        <div className="hybrid-modal-header-info">
+          <h3><Leaf size={20} style={{marginRight: '8px', verticalAlign: 'text-bottom'}}/> PlantSense.AI</h3>
+          <span className="hybrid-modal-mode-badge">
+            {mode === 'voice' ? <><Mic size={14} style={{verticalAlign: 'text-bottom', marginRight: '4px'}}/> Voice Mode</> : <><MessageSquare size={14} style={{verticalAlign: 'text-bottom', marginRight: '4px'}}/> Text Mode</>}
+          </span>
+        </div>
+        <div className="hybrid-modal-header-actions">
+          <button 
+            className="modal-mode-toggle-btn"
+            onClick={toggleMode}
+            title={`Switch to ${mode === 'voice' ? 'text' : 'voice'} mode`}
+          >
+            {mode === 'voice' ? <MessageSquare size={18} /> : <Mic size={18} />}
+          </button>
+          <button className="hybrid-modal-close-btn" onClick={onDisconnect}>
+            <X size={20} />
+          </button>
+        </div>
+      </div>
+
+      {mode === 'voice' ? (
+        <VoiceMode state={state} />
+      ) : (
+        <TextMode 
+          messages={messages}
+          streamingText={streamingText}
+          inputText={inputText}
+          setInputText={setInputText}
+          isSending={isSending}
+          sendMessage={sendMessage}
+          handleKeyPress={handleKeyPress}
+          messagesEndRef={messagesEndRef}
+        />
+      )}
+    </div>
+  );
+}
+
+function VoiceMode({ state }) {
+  const isWaiting = state === 'initializing' || state === 'disconnected' || !state;
+  const isThinking = state === 'thinking';
+  const isListening = state === 'listening';
+
+  return (
+    <div className="modal-voice-mode">
+      <div className="modal-voice-status-container">
+        <div className={`modal-voice-indicator ${isWaiting ? 'waiting' : isThinking ? 'thinking' : isListening ? 'listening' : 'speaking'}`}>
+          <div className="modal-voice-pulse"></div>
+          {isThinking && <div className="modal-voice-pulse-secondary"></div>}
+          <div className="modal-voice-icon">
+            {isWaiting ? <Loader className="spin" size={44} color="#7a9c7a" /> : 
+             isListening ? <Mic size={44} color="#3e5c3e" /> : 
+             isThinking ? <BrainCircuit size={44} color="#3e5c3e" /> : 
+             <Mic size={44} color="#2b3a2f" />}
+          </div>
+        </div>
+        <div className="modal-voice-state-text">
+          {isWaiting ? 'Initializing...' :
+           state === 'listening' ? 'Listening...' : 
+           state === 'thinking' ? 'Processing...' : 
+           state === 'speaking' ? 'Speaking...' : 'Ready'}
+        </div>
+      </div>
+      
+      <div className="modal-voice-instructions">
+        <p>
+          {isWaiting 
+            ? 'Please wait while the AI agent initializes...' 
+            : 'Speak naturally about your plant health concerns'}
+        </p>
+        <p className="modal-voice-tip">
+          {isWaiting 
+            ? 'This usually takes just a few seconds' 
+            : 'The AI will listen and respond to your questions'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function TextMode({ messages, streamingText, inputText, setInputText, isSending, sendMessage, handleKeyPress, messagesEndRef }) {
+  const displayMessages = [...messages];
+  if (streamingText) {
+    if (displayMessages.length > 0 && displayMessages[displayMessages.length - 1].sender === 'agent') {
+      const last = displayMessages[displayMessages.length - 1];
+      displayMessages[displayMessages.length - 1] = {
+        ...last,
+        text: (last.text + ' ' + streamingText).trim()
+      };
+    } else {
+      displayMessages.push({
+        id: 'streaming-temp',
+        text: streamingText,
+        sender: 'agent',
+        timestamp: new Date()
+      });
+    }
+  }
+
+  return (
+    <div className="modal-text-mode">
+      <div className="modal-chat-messages">
+        {displayMessages.map((msg) => (
+          <div 
+            key={msg.id} 
+            className={`modal-chat-message ${msg.sender}`}
+          >
+            <div className="modal-message-content">
+              <div className={`modal-message-avatar ${msg.sender}`}>
+                {msg.sender === 'agent' ? <Leaf size={20} color="#3e5c3e" /> : msg.sender === 'user' ? <User size={20} color="#ffffff" /> : <Info size={20} color="#1976d2" />}
               </div>
-            )}
-
-            {/* Input Bar */}
-            <div className="modal-chat-input-bar">
-              <input
-                type="text"
-                className="modal-chat-input"
-                placeholder="Ask anything about symptoms, cures, or prevention..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-              />
-              <button 
-                className="modal-chat-send-btn" 
-                onClick={() => handleSendMessage()}
-                disabled={!inputText.trim()}
-              >
-                <Send size={18} />
-              </button>
+              <div className="modal-message-bubble">
+                <p>{msg.text}</p>
+                <span className="modal-message-time">
+                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
             </div>
           </div>
-        )}
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="modal-chat-input-container">
+        <textarea
+          className="modal-chat-input"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Describe your plant's symptoms..."
+          disabled={isSending}
+          rows={1}
+        />
+        <button 
+          className="modal-chat-send-btn"
+          onClick={sendMessage}
+          disabled={!inputText.trim() || isSending}
+        >
+          {isSending ? <Loader className="spin" size={20} /> : <Send size={20} />}
+        </button>
+      </div>
+
+      <div className="modal-chat-footer">
+        <p className="modal-chat-tip"><Lightbulb size={14} style={{verticalAlign: 'text-bottom', marginRight: '4px'}} /> Tip: Describe symptoms like leaf color, spots, or wilting</p>
       </div>
     </div>
   );
