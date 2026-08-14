@@ -114,10 +114,9 @@ async def get_voice_token(request: Request):
             # Request body might be empty, which is fine
             pass
         
-        # Generate a unique identity for current user session
+        # Generate a unique identity and room name for current user session
         identity = f"user_{int(time.time() * 1000)}"
-        # Use a fixed room name so the Windows agent (agent_windows.py) is always in the same room
-        room_name = "plant-voice-assistant"
+        room_name = f"room_{identity}"
         
         # Create token with LiveKit API
         token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
