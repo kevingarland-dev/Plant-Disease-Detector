@@ -1,10 +1,11 @@
 fastapi
-livekit-plugins-elevenlabs
 uvicorn
 numpy
 tensorflow
 python-dotenv
 python-multipart
-livekit-api
 pillow
 scikit-learn
+openai
+httpx
+pydantic
