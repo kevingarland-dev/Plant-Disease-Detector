@@ -76,7 +76,7 @@ async def run_agent_in_room(room_name: str):
         # livekit-agents v1.6+: no manual HTTP session setup needed
         session = AgentSession(
             stt="assemblyai/universal-streaming:en",
-            llm="openai/gpt-4.1-mini",
+            llm="openai/gpt-4o-mini",
             tts="cartesia/sonic-2:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
             vad=silero.VAD.load(),
         )

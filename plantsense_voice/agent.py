@@ -44,7 +44,7 @@ class Assistant(Agent):
 async def entrypoint(ctx: agents.JobContext):
     session = AgentSession(
         stt="assemblyai/universal-streaming:en",
-        llm="openai/gpt-4.1-mini",
+        llm="openai/gpt-4o-mini",
         tts="cartesia/sonic-2:2ce680f2-df85-4b45-bcbd-231e7d4519bb",
         vad=silero.VAD.load(),
     )
