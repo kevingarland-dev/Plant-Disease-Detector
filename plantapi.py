@@ -131,6 +131,20 @@ async def get_voice_token(request: Request):
         
         jwt_token = token.to_jwt()
         
+        # Explicitly dispatch the LiveKit Cloud Agent into this user's room
+        try:
+            lk_api = api.LiveKitAPI(LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
+            dispatch_req = api.CreateAgentDispatchRequest(
+                agent_name="",
+                room=room_name,
+                metadata=json.dumps(prediction_data) if prediction_data else ""
+            )
+            await lk_api.agent_dispatch.create_dispatch(dispatch_req)
+            await lk_api.aclose()
+            logger.info(f"Dispatched Cloud Agent to room: {room_name}")
+        except Exception as dispatch_err:
+            logger.warning(f"Agent dispatch notice: {dispatch_err}")
+        
         logger.info(f"Generated voice token for identity: {identity}, room: {room_name}")
         if prediction_data:
             logger.info(f"Prediction data provided: {prediction_data}")
