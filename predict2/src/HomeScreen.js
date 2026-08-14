@@ -76,7 +76,7 @@ export default function HomeScreen() {
           <ScrollReveal delay={200}>
             <div className="hero-col">
               <h3>Diagnose Early</h3>
-              <p>Upload a high-resolution photo of your plant's foliage. Our neural networks identify 400+ botanical pathogens with clinical accuracy. Ensure the vitality of your crops by catching diseases before they spread.</p>
+              <p>Upload a high-resolution photo of your plant's foliage. Our neural networks identify 17 specific botanical pathogens and conditions with clinical accuracy. Ensure the vitality of your crops by catching diseases before they spread.</p>
             </div>
           </ScrollReveal>
         </div>
@@ -120,8 +120,8 @@ export default function HomeScreen() {
               </div>
               <div className="footer-col">
                  <h3>Contact</h3>
-                 <p>123 Agri-Tech Blvd<br/>Innovation City</p>
-                 <p>hello@plantsense.ai</p>
+                 <p>College of Science<br/>KNUST</p>
+                 <p>kojoe278@gmail.com</p>
               </div>
            </div>
          </ScrollReveal>
