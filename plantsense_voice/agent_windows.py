@@ -13,6 +13,9 @@ from livekit.plugins import noise_cancellation, silero
 
 # Load environment variables
 load_dotenv(".env.local")
+load_dotenv(".env")
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env.local"))
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # Configure logging
 logging.basicConfig(

@@ -179,7 +179,7 @@ function PredictScreen() {
       <div className="predict-hero">
         <h1 className="predict-title">Diagnosis at <em>the root</em>.</h1>
         <p className="predict-subtitle">
-          Upload a high-resolution photo of your plant's foliage. Our neural networks identify 400+ botanical pathogens with clinical accuracy.
+          Upload a high-resolution photo of your plant's foliage. Our neural networks identify 17 botanical diseases and health conditions with clinical accuracy.
         </p>
       </div>
 
@@ -191,7 +191,7 @@ function PredictScreen() {
             <span className="badge-dot green"></span> NEURAL ENGINE ACTIVE
           </div>
           <div className="predict-badge">
-            <span className="badge-dot orange"></span> LIBRARY 1,400 CLASSES
+            <span className="badge-dot orange"></span> 17 DISEASE CLASSES
           </div>
         </div>
 

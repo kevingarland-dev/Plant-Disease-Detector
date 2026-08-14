@@ -247,13 +247,18 @@ function HybridUI({ initialMode, onDisconnect, onModeChange, predictionData }) {
     if (room && predictionData && !predictionSent) {
       const predictionMessage = `The user just analyzed a plant image. Here's the diagnosis: Disease: ${predictionData.disease}, Confidence: ${predictionData.confidence}%, Description: ${predictionData.description}. Please acknowledge this information and be ready to provide more detailed advice about this disease.`;
       
-      try {
-        room.localParticipant.sendText(predictionMessage, { topic: 'lk.chat' });
-        setPredictionSent(true);
-        console.log('✅ Prediction data sent to agent');
-      } catch (err) {
-        console.error('Error sending prediction data:', err);
-      }
+      const sendPred = async () => {
+        try {
+          if (room.localParticipant && room.state === 'connected') {
+            await room.localParticipant.sendText(predictionMessage, { topic: 'lk.chat' });
+            setPredictionSent(true);
+            console.log('✅ Prediction data sent to agent');
+          }
+        } catch (err) {
+          console.error('Error sending prediction data:', err);
+        }
+      };
+      sendPred();
     }
   }, [room, predictionData, predictionSent]);
 
