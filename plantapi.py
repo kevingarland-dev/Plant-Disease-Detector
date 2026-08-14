@@ -1,11 +1,12 @@
 import os
 import json
 import logging
+import base64
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
@@ -31,10 +32,6 @@ CONFIDENCE_THRESHOLD = 0.70
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# LiveKit configuration (optional fallback)
-LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY")
-LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET")
-LIVEKIT_URL = os.getenv("LIVEKIT_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 app.add_middleware(
@@ -60,8 +57,9 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     predictionData: Optional[dict] = None
+    voice: Optional[str] = "nova" # Options: "nova", "shimmer", "alloy", "echo"
 
-SYSTEM_PROMPT = """You are PlantSense AI, an empathetic, highly knowledgeable agronomy and plant pathology assistant.
+SYSTEM_PROMPT = """You are PlantSense AI, a warm, highly knowledgeable agronomy and plant pathology specialist.
 Your goal is to help farmers, gardeners, and plant enthusiasts identify, treat, and prevent plant diseases.
 
 Your specialty covers 17 plant conditions across Maize/Corn, Potato, and Tomato:
@@ -71,14 +69,14 @@ Your specialty covers 17 plant conditions across Maize/Corn, Potato, and Tomato:
 
 Guidelines for responses:
 1. Provide actionable, practical diagnosis, organic & chemical treatment options, and prevention advice.
-2. Keep responses concise, clear, natural, and conversational (since responses are read aloud via voice).
-3. Avoid markdown asterisks (*, **) or emojis that sound repetitive in speech synthesis. Use plain text and bullet points.
+2. Keep responses concise, conversational, and natural (between 2 to 4 sentences or concise bullet points).
+3. Do NOT use markdown asterisks (*, **) or emojis, as they sound unnatural when spoken by human voice engines.
 4. If a diagnosis is provided in the prompt context, acknowledge it directly and offer immediate next steps.
 """
 
 @app.post("/assistant/chat")
 async def chat_assistant(req: ChatRequest):
-    """Direct AI Chat & Voice Assistant endpoint."""
+    """Direct AI Chat & High-Quality Voice Assistant endpoint."""
     try:
         openai_key = os.getenv("OPENAI_API_KEY")
         
@@ -100,17 +98,30 @@ async def chat_assistant(req: ChatRequest):
                 model="gpt-4o-mini",
                 messages=formatted_messages,
                 temperature=0.7,
-                max_tokens=350,
+                max_tokens=300,
             )
             reply = completion.choices[0].message.content
-            return {"reply": reply}
+
+            # Generate natural, human-like voice audio using OpenAI TTS
+            audio_base64 = None
+            try:
+                selected_voice = req.voice if req.voice in ["nova", "shimmer", "alloy", "echo", "fable", "onyx"] else "nova"
+                tts_resp = await client.audio.speech.create(
+                    model="tts-1",
+                    voice=selected_voice,
+                    input=reply,
+                )
+                audio_base64 = base64.b64encode(tts_resp.content).decode("utf-8")
+            except Exception as tts_err:
+                logger.warning(f"OpenAI TTS synthesis error: {tts_err}")
+
+            return {"reply": reply, "audio": audio_base64}
         else:
-            # Smart fallback with disease database if key not set
             last_user_msg = req.messages[-1].content.lower() if req.messages else ""
-            reply = "I'm PlantSense AI. For best results, ensure proper air circulation, avoid overhead watering, and isolate infected plants immediately."
+            reply = "I am PlantSense AI. For best results, ensure proper air circulation, avoid overhead watering, and isolate infected plants immediately."
             if req.predictionData:
                 reply = f"Based on your diagnosis of {req.predictionData.get('disease')}, {req.predictionData.get('description', '')}"
-            return {"reply": reply}
+            return {"reply": reply, "audio": None}
     except Exception as e:
         logger.error(f"Error in assistant chat: {e}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -110,6 +110,41 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingText]);
 
+  const currentAudioRef = useRef(null);
+
+  const playAudioOrFallback = (text, audioBase64) => {
+    if (isMuted) return;
+
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+
+    if (audioBase64) {
+      try {
+        const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
+        currentAudioRef.current = audio;
+        setVoiceState('speaking');
+        audio.onended = () => {
+          setVoiceState('waiting');
+          currentAudioRef.current = null;
+        };
+        audio.onerror = () => {
+          console.warn('Audio playback error, falling back to speech synthesis');
+          speakText(text);
+        };
+        audio.play().catch(() => {
+          speakText(text);
+        });
+        return;
+      } catch (err) {
+        console.warn('Error playing base64 audio:', err);
+      }
+    }
+
+    speakText(text);
+  };
+
   const speakText = (text) => {
     if (isMuted || !synthRef.current) return;
     try {
@@ -136,6 +171,10 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
   };
 
   const startListening = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
     if (synthRef.current) {
       synthRef.current.cancel();
     }
@@ -179,7 +218,6 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
     setVoiceState('thinking');
 
     try {
-      // Format messages for the OpenAI endpoint
       const formattedHistory = newMessages.map(m => ({
         role: m.sender === 'user' ? 'user' : 'assistant',
         content: m.text
@@ -190,7 +228,8 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: formattedHistory,
-          predictionData: predictionData
+          predictionData: predictionData,
+          voice: "nova" // Natural human voice
         })
       });
 
@@ -231,11 +270,11 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
         } else {
           clearInterval(interval);
         }
-      }, 40);
+      }, 35);
 
-      // Speak answer if in voice mode
+      // Play high quality voice audio if in voice mode
       if (mode === 'voice' && !isMuted) {
-        speakText(aiReply);
+        playAudioOrFallback(aiReply, data.audio);
       } else {
         setVoiceState('waiting');
       }
@@ -257,6 +296,10 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
 
   const handleClose = () => {
     stopListening();
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
     if (synthRef.current) {
       synthRef.current.cancel();
     }
@@ -264,8 +307,14 @@ function HybridAssistantModal({ isOpen, onClose, predictionData }) {
   };
 
   const toggleMute = () => {
-    if (!isMuted && synthRef.current) {
-      synthRef.current.cancel();
+    if (!isMuted) {
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current = null;
+      }
+      if (synthRef.current) {
+        synthRef.current.cancel();
+      }
       setVoiceState('waiting');
     }
     setIsMuted(!isMuted);

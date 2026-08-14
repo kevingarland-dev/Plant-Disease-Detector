@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/static/css/main.95c3a91c.css",
-    "main.js": "/static/js/main.ab5beab0.js",
+    "main.js": "/static/js/main.4fbf2669.js",
     "static/js/453.e3bb357c.chunk.js": "/static/js/453.e3bb357c.chunk.js",
     "static/media/ai_agriculture.jpg": "/static/media/ai_agriculture.9019489bb48119abbce6.jpg",
     "index.html": "/index.html",
     "main.95c3a91c.css.map": "/static/css/main.95c3a91c.css.map",
-    "main.ab5beab0.js.map": "/static/js/main.ab5beab0.js.map",
+    "main.4fbf2669.js.map": "/static/js/main.4fbf2669.js.map",
     "453.e3bb357c.chunk.js.map": "/static/js/453.e3bb357c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.95c3a91c.css",
-    "static/js/main.ab5beab0.js"
+    "static/js/main.4fbf2669.js"
   ]
 }
