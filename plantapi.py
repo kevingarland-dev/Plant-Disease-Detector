@@ -114,9 +114,10 @@ async def get_voice_token(request: Request):
             # Request body might be empty, which is fine
             pass
         
-        # Generate a unique identity and room name for current user session
+        # Generate a unique identity for current user session
         identity = f"user_{int(time.time() * 1000)}"
-        room_name = f"room_{identity}"
+        # Use a fixed room name so the Windows agent (agent_windows.py) is always in the same room
+        room_name = "plant-voice-assistant"
         
         # Create token with LiveKit API
         token = api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
@@ -130,20 +131,6 @@ async def get_voice_token(request: Request):
         )
         
         jwt_token = token.to_jwt()
-        
-        # Explicitly dispatch the LiveKit Cloud Agent into this user's room
-        try:
-            lk_api = api.LiveKitAPI(LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
-            dispatch_req = api.CreateAgentDispatchRequest(
-                agent_name="",
-                room=room_name,
-                metadata=json.dumps(prediction_data) if prediction_data else ""
-            )
-            await lk_api.agent_dispatch.create_dispatch(dispatch_req)
-            await lk_api.aclose()
-            logger.info(f"Dispatched Cloud Agent to room: {room_name}")
-        except Exception as dispatch_err:
-            logger.warning(f"Agent dispatch notice: {dispatch_err}")
         
         logger.info(f"Generated voice token for identity: {identity}, room: {room_name}")
         if prediction_data:

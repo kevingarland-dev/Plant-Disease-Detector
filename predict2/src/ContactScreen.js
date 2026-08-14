@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Mail, MapPin } from 'lucide-react';
+import { Leaf, Mail, Phone, MapPin } from 'lucide-react';
 import './predict.css';
 
 export default function ContactScreen() {
@@ -30,10 +30,13 @@ export default function ContactScreen() {
             <h3 style={{fontFamily: 'Playfair Display, serif', fontSize: '1.6rem', color: '#1a2a1f', marginTop: 0}}>Contact Info</h3>
             <div style={{display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '30px'}}>
               <div style={{display: 'flex', alignItems: 'center', gap: '15px', color: '#4a6741'}}>
-                 <Mail size={20} /> <span style={{color: '#667b66'}}>kojoe278@gmail.com</span>
+                 <Mail size={20} /> <span style={{color: '#667b66'}}>your.email@example.com</span>
               </div>
               <div style={{display: 'flex', alignItems: 'center', gap: '15px', color: '#4a6741'}}>
-                 <MapPin size={20} /> <span style={{color: '#667b66'}}>College of Science, KNUST</span>
+                 <Phone size={20} /> <span style={{color: '#667b66'}}>+1 (555) 123-4567</span>
+              </div>
+              <div style={{display: 'flex', alignItems: 'center', gap: '15px', color: '#4a6741'}}>
+                 <MapPin size={20} /> <span style={{color: '#667b66'}}>123 Agri-Tech Blvd, Innovation City</span>
               </div>
             </div>
           </div>
