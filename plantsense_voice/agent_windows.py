@@ -7,7 +7,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from livekit import rtc, api
-from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.agents import AgentSession, Agent, RoomInputOptions, RoomOutputOptions
 from livekit.agents.utils import http_context
 from livekit.plugins import noise_cancellation, silero
 
@@ -87,6 +87,10 @@ async def run_agent_in_room(room_name: str):
             room_input_options=RoomInputOptions(
                 noise_cancellation=noise_cancellation.BVC(),
                 text_enabled=True,
+            ),
+            room_output_options=RoomOutputOptions(
+                transcription_enabled=True,
+                sync_transcription=True,
             ),
         )
         

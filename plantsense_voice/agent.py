@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 
 from livekit import agents
-from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.agents import AgentSession, Agent, RoomInputOptions, RoomOutputOptions
 from livekit.plugins import noise_cancellation, silero
 
 load_dotenv(".env.local")
@@ -56,7 +56,11 @@ async def entrypoint(ctx: agents.JobContext):
             # For telephony applications, use `BVCTelephony` instead for best results
             noise_cancellation=noise_cancellation.BVC(),
             text_enabled=True,  # Explicitly enable text input
-        )
+        ),
+        room_output_options=RoomOutputOptions(
+            transcription_enabled=True,
+            sync_transcription=True,
+        ),
     )
 
     await session.generate_reply(
